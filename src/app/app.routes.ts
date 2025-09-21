@@ -1,3 +1,21 @@
 import { Routes } from '@angular/router';
+import { DefaultLayout } from './default-layout/default-layout';
+import { LandingPage } from './pages/landing-page/landing-page';
+import { AboutPage } from './pages/about-page/about-page';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  {
+    path: '',
+    component: DefaultLayout,
+    children: [
+      {
+        path: '',
+        component: LandingPage,
+      },
+      {
+        path: 'about',
+        component: AboutPage,
+      },
+    ],
+  },
+];

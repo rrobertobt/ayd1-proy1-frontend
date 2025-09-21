@@ -1,0 +1,155 @@
+<!-- Hero -->
+<section class="flex-1 flex items-center justify-center py-20 px-6">
+  <div class="container mx-auto flex flex-col md:flex-row items-center gap-10">
+    <div class="md:w-1/2 space-y-6">
+      <h1 class="text-5xl font-extrabold leading-tight">
+        Entregas confiables,<br />sin complejidad
+      </h1>
+      <p class="text-lg text-muted-color">
+        Gestiona tus envíos con transparencia, trazabilidad y beneficios para todos los
+        involucrados.
+      </p>
+      <button pButton label="Empieza ahora" class="p-button-lg p-button-primary"></button>
+    </div>
+    <div class="md:w-1/2">
+      <img
+        src="assets/mockup-deliveries.png"
+        alt="Mockup del sistema"
+        class="rounded-lg shadow-lg w-full max-w-lg mx-auto"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- Cómo funciona -->
+<section id="how-it-works" class="py-20 bg-surface-100 dark:bg-surface-800 px-6">
+  <div class="container mx-auto space-y-12">
+    <h2 class="text-4xl font-bold text-center">Cómo funciona</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-8">
+      <!-- Item 1 -->
+      <div class="flex flex-col items-center text-center space-y-4">
+        <i class="pi pi-pencil text-5xl text-primary"></i>
+        <h3 class="text-2xl font-semibold">Creación de guía</h3>
+        <p class="text-muted-color">
+          El comercio registra la guía, destinatario, costo estimado y observaciones.
+        </p>
+      </div>
+      <!-- Item 2 -->
+      <div class="flex flex-col items-center text-center space-y-4">
+        <i class="pi pi-truck text-5xl text-primary"></i>
+        <h3 class="text-2xl font-semibold">Asignación y entrega</h3>
+        <p class="text-muted-color">
+          Coordinador asigna repartidor, recogida y entrega al cliente.
+        </p>
+      </div>
+      <!-- Item 3 -->
+      <div class="flex flex-col items-center text-center space-y-4">
+        <i class="pi pi-map-marker text-5xl text-primary"></i>
+        <h3 class="text-2xl font-semibold">Rastreo en tiempo real</h3>
+        <p class="text-muted-color">
+          Sigue el estado de tu entrega desde la app, hasta que llega o se trata.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Beneficios -->
+<section id="benefits" class="py-20 px-6">
+  <div class="container mx-auto space-y-12">
+    <h2 class="text-4xl font-bold text-center">Nuestros beneficios</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
+      <div class="flex items-start gap-6">
+        <i class="pi pi-star text-4xl text-yellow-500"></i>
+        <div>
+          <h4 class="text-2xl font-semibold">Programa de fidelización</h4>
+          <p class="text-muted-color mt-2">Descuentos y ventajas según tu volumen mensual.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-6">
+        <i class="pi pi-clock text-4xl text-blue-600"></i>
+        <div>
+          <h4 class="text-2xl font-semibold">Transparencia total</h4>
+          <p class="text-muted-color mt-2">
+            Visualiza el proceso completo, incidencias documentadas.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-6">
+        <i class="pi pi-camera text-4xl text-green-600"></i>
+        <div>
+          <h4 class="text-2xl font-semibold">Evidencia confiable</h4>
+          <p class="text-muted-color mt-2">
+            Fotos, firmas, reportes disponibles para cada entrega.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-6">
+        <i class="pi pi-shield text-4xl text-red-600"></i>
+        <div>
+          <h4 class="text-2xl font-semibold">Seguridad reforzada</h4>
+          <p class="text-muted-color mt-2">2FA, auditorías internas, control de permisos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Planes / fidelización -->
+<section id="plans" class="py-20 bg-surface-100 dark:bg-surface-800 px-6">
+  <div class="container mx-auto space-y-12">
+    <h2 class="text-4xl font-bold text-center">Planes y fidelización</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+      <!-- Plata -->
+      <div class="bg-white dark:bg-surface-900 rounded-lg shadow-lg p-8 flex flex-col">
+        <h3 class="text-2xl font-semibold text-center">Plata</h3>
+        <p class="text-center text-muted-color mt-2">Hasta 99 entregas/mes</p>
+        <ul class="mt-4 space-y-2 text-gray-700 dark:text-gray-300">
+          <li>Descuento 5%</li>
+          <li>Cancelaciones con comisión completa</li>
+        </ul>
+        <button pButton label="Escala ahora" class="mt-auto p-button-primary w-full"></button>
+      </div>
+      <!-- Oro -->
+      <div
+        class="bg-white dark:bg-surface-900 rounded-lg shadow-lg p-8 flex flex-col border-2 border-primary"
+      >
+        <h3 class="text-2xl font-semibold text-center text-primary">Oro</h3>
+        <p class="text-center text-muted-color mt-2">100-299 entregas/mes</p>
+        <ul class="mt-4 space-y-2 text-gray-700 dark:text-gray-300">
+          <li>Descuento 8%</li>
+          <li>Cancelaciones pagan sólo 50%</li>
+        </ul>
+        <button pButton label="Ver beneficios" class="mt-auto p-button-primary w-full"></button>
+      </div>
+      <!-- Diamante -->
+      <div class="bg-white dark:bg-surface-900 rounded-lg shadow-lg p-8 flex flex-col">
+        <h3 class="text-2xl font-semibold text-center">Diamante</h3>
+        <p class="text-center text-muted-color mt-2">300+ entregas/mes</p>
+        <ul class="mt-4 space-y-2 text-gray-700 dark:text-gray-300">
+          <li>Descuento 12%</li>
+          <li>Hasta 5 cancelaciones gratis/mes</li>
+        </ul>
+        <button pButton label="Top fidelidad" class="mt-auto p-button-primary w-full"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA final / Contacto -->
+<section id="contact" class="py-20 px-6">
+  <div class="container mx-auto text-center space-y-6">
+    <h2 class="text-4xl font-bold">¿Listo para empezar?</h2>
+    <p class="text-lg text-muted-color">
+      Regístrate como comercio o repartidor y lleva tus entregas al siguiente nivel.
+    </p>
+    <div class="flex flex-col md:flex-row justify-center gap-4 mt-6">
+      <button
+        pButton
+        label="Para Comercios"
+        class="p-button-lg p-button-outlined border-primary text-primary"
+      ></button>
+      <button pButton label="Para Repartidores" class="p-button-lg p-button-primary"></button>
+    </div>
+  </div>
+</section>
