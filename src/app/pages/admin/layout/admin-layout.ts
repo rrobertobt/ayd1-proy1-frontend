@@ -2,11 +2,12 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgIf } from '@angular/common';
+import { ConfirmDialog } from '../../../shared/confirm/confirm-dialog';
 
 @Component({
   standalone: true,
   selector: 'app-admin-layout',
-  imports: [RouterLink, RouterOutlet, NgIf],
+  imports: [RouterLink, RouterOutlet, NgIf, ConfirmDialog],
   template: `
     <div class="min-h-screen bg-slate-50 text-slate-800">
       <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
@@ -37,6 +38,8 @@ import { NgIf } from '@angular/common';
       <main class="mx-auto max-w-6xl px-4 py-6">
         <router-outlet />
       </main>
+
+       <app-confirm-dialog />
     </div>
   `,
 })
