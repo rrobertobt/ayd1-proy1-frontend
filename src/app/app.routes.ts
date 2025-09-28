@@ -10,6 +10,7 @@ import {
   roleCanMatchGuard,
 } from './core/auth/auth.guards';
 import { PrivateOpsLayout } from './layouts/private-ops-layout/private-ops-layout';
+import { AdminLayout } from './pages/admin/layout/admin-layout';
 
 export const routes: Routes = [
   {
@@ -23,14 +24,14 @@ export const routes: Routes = [
     children: [
       { path: '', component: LandingPage },
       { path: 'about', component: AboutPage },
-
-
-      {
-        path: 'admin',
-        loadChildren: () =>
-          import('./pages/admin/admin.routes').then(m => m.ADMIN_ROUTES),
-      },
     ],
+  },
+  {
+    path: 'admin', // administrador
+    component: AdminLayout,
+    canMatch: [roleCanMatchGuard],
+    canActivate: [roleCanActivateGuard],
+    loadChildren: () => import('./pages/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
   {
     path: 'ops', // coordinador/operaciones
