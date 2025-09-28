@@ -3,8 +3,13 @@ import { Routes } from '@angular/router';
 import { DefaultLayout } from './default-layout/default-layout';
 import { LandingPage } from './pages/landing-page/landing-page';
 import { AboutPage } from './pages/about-page/about-page';
+import { LoginPage } from './pages/login-page/login-page';
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    component: LoginPage,
+  },
   {
     path: '',
     component: DefaultLayout,
@@ -19,5 +24,9 @@ export const routes: Routes = [
           import('./pages/admin/admin.routes').then(m => m.ADMIN_ROUTES),
       },
     ],
+  },
+  {
+    path: 'ops', // coordinador/operaciones
+    loadChildren: () => import('./routes/ops.routes').then((m) => m.OPS_ROUTES),
   },
 ];
