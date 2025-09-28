@@ -1,21 +1,26 @@
 <header class="bg-white dark:bg-surface-800 shadow-sm">
   <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
     <div class="text-2xl font-bold text-primary">SIE</div>
-    <ul class="hidden md:flex space-x-6 text-lg">
+    <!-- <ul class="hidden md:flex space-x-6 text-lg">
       <li><a href="#how-it-works" class="hover:text-primary-emphasis">Cómo funciona</a></li>
       <li><a href="#benefits" class="hover:text-primary-emphasis">Características</a></li>
       <li><a href="#plans" class="hover:text-primary-emphasis">Planes</a></li>
       <li><a href="#contact" class="hover:text-primary-emphasis">Contacto</a></li>
       <li><a routerLink="/about" class="hover:text-primary-emphasis">Acerca de</a></li>
-    </ul>
+    </ul> -->
+    <p-menubar [model]="menuItems">
+      <ng-template #item let-item>
+        <a [routerLink]="item.routerLink" class="flex items-center gap-2 hover:text-primary-emphasis transition px-3 py-1.5">
+          @if(item.icon){
+          <ng-icon [name]="item.icon"></ng-icon>
+          }
+          {{ item.label }}
+        </a>
+      </ng-template>
+    </p-menubar>
     <div class="space-x-4">
-      <p-button
-        variant="outlined"
-        label="Inicia sesión"
-      ></p-button>
-      <p-button
-        label="Regístrate"
-      ></p-button>
+      <p-button variant="outlined" label="Inicia sesión"></p-button>
+      <p-button label="Regístrate"></p-button>
     </div>
   </nav>
 </header>
