@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080/api/v1', // cambia al endpoint real en prod
+  apiBaseUrl: 'http://192.168.31.225:8080/api/v1',
 };

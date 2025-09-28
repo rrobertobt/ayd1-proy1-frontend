@@ -1,0 +1,100 @@
+<section class="max-w-5xl mx-auto">
+  <header class="mb-6">
+    <h1 class="text-3xl font-extrabold tracking-tight">
+      {{ isEdit ? 'Editar empleado' : 'Nuevo empleado' }}
+    </h1>
+    <p class="text-sm text-slate-500 mt-1">
+      <!-- Personal data, role and access settings. -->
+      Datos personales, rol y seguridad de acceso.
+    </p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Card -->
+    <div class="rounded-2xl border bg-white shadow-sm">
+      <div class="p-6 grid gap-6 md:grid-cols-2">
+        <!-- Email -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Email<span class="text-red-500">*</span></label>
+          <input class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                        placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                 formControlName="email" placeholder="empleado@empresa.com">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['email'].invalid">Email requerido</span>
+        </div>
+
+        <!-- Rol -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Rol<span class="text-red-500">*</span></label>
+          <select class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800
+                         outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                  formControlName="role_id">
+            <option *ngFor="let r of roles" [ngValue]="r.role_id">{{ r.role_name }}</option>
+          </select>
+        </div>
+
+        <!-- Nombres -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Nombre(s)<span class="text-red-500">*</span></label>
+          <input class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                        placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                 formControlName="first_name" placeholder="Ana">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['first_name'].invalid">Requerido</span>
+        </div>
+
+        <!-- Apellidos -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Apellidos<span class="text-red-500">*</span></label>
+          <input class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                        placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                 formControlName="last_name" placeholder="Gómez">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['last_name'].invalid">Requerido</span>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Teléfono</label>
+          <input class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                        placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                 formControlName="phone" placeholder="+502 2222-0000">
+        </div>
+
+        <!-- DPI/National ID -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Documento de identidad</label>
+          <input class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                        placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                 formControlName="national_id" placeholder="DPI / NIT personal">
+        </div>
+
+        <!-- Dirección -->
+        <div class="grid gap-2 md:col-span-2">
+          <label class="text-sm font-medium">Dirección</label>
+          <textarea class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                           placeholder-slate-400 text-slate-800 min-h-[88px] outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                    formControlName="address" placeholder="Dirección completa"></textarea>
+        </div>
+
+        <!-- Seguridad y estado -->
+        <div class="md:col-span-2 flex flex-wrap items-center gap-6">
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" formControlName="two_factor_enabled" class="h-4 w-4 accent-indigo-600">
+            <span class="text-sm">Habilitar 2FA</span>
+          </label>
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" formControlName="active" class="h-4 w-4 accent-indigo-600">
+            <span class="text-sm">Activo</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+      <button class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition disabled:opacity-50"
+              [disabled]="submitted && form.invalid">
+        {{ isEdit ? 'Guardar cambios' : 'Crear empleado' }}
+      </button>
+      <button type="button" class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50" (click)="back()">Cancelar</button>
+    </div>
+  </form>
+</section>

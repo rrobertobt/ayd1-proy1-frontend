@@ -1,0 +1,154 @@
+<section class="max-w-5xl mx-auto">
+  <header class="mb-6">
+    <h1 class="text-3xl font-extrabold tracking-tight">
+      {{ isEdit ? 'Editar comercio' : 'Nuevo comercio' }}
+    </h1>
+    <p class="text-sm text-slate-500 mt-1">Da de alta, edita o suspende comercios afiliados.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+    <div class="rounded-2xl border bg-white shadow-sm">
+      <div class="p-6 grid gap-6 md:grid-cols-2">
+
+        <!-- NIT -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">NIT<span class="text-red-500">*</span></label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="tax_id"
+            placeholder="Ej: CF-1234567-0"
+            [readonly]="isEdit">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['tax_id'].invalid">Requerido</span>
+        </div>
+
+        <!-- Usuario (ID) -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Usuario (ID)*</label>
+          <input
+            type="number"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="user_id"
+            placeholder="Ej: 101">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['user_id'].invalid">Requerido</span>
+        </div>
+
+        <!-- Nombre comercial -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Nombre comercial<span class="text-red-500">*</span></label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="business_name"
+            placeholder="Ej: Tienda El Centro">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['business_name'].invalid">Requerido</span>
+        </div>
+
+        <!-- Razón social -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Razón social<span class="text-red-500">*</span></label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="legal_name"
+            placeholder="Ej: El Centro S.A.">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['legal_name'].invalid">Requerido</span>
+        </div>
+
+        <!-- Domicilio fiscal -->
+        <div class="grid gap-2 md:col-span-2">
+          <label class="text-sm font-medium">Domicilio fiscal<span class="text-red-500">*</span></label>
+          <textarea
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 min-h-[88px]
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="tax_address"
+            placeholder="Dirección fiscal completa"></textarea>
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['tax_address'].invalid">Requerido</span>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Teléfono</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="business_phone"
+            placeholder="Ej: 2333-2000">
+        </div>
+
+        <!-- Email -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Email</label>
+          <input
+            type="email"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="business_email"
+            placeholder="contacto@empresa.com">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['business_email'].invalid">Email inválido</span>
+        </div>
+
+        <!-- Contacto de soporte -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Contacto de soporte</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="support_contact"
+            placeholder="Nombre del contacto">
+        </div>
+
+        <!-- Nivel -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Nivel de fidelización</label>
+          <select
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800
+                   outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="current_level_id">
+            <option [ngValue]="null">Sin nivel</option>
+            <option *ngFor="let l of levels" [ngValue]="l.level_id">{{ l.level_name }}</option>
+          </select>
+        </div>
+
+        <!-- Fecha afiliación -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Fecha de afiliación<span class="text-red-500">*</span></label>
+          <input
+            type="date"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="affiliation_date">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['affiliation_date'].invalid">Requerido</span>
+        </div>
+
+        <!-- Activo -->
+        <div class="md:col-span-2">
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" formControlName="active" class="h-4 w-4 accent-indigo-600">
+            <span class="text-sm">Activo</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+      <button
+        class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition disabled:opacity-50"
+        [disabled]="submitted && form.invalid">
+        {{ isEdit ? 'Guardar cambios' : 'Crear comercio' }}
+      </button>
+      <button type="button" class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50" (click)="back()">
+        Cancelar
+      </button>
+    </div>
+  </form>
+</section>

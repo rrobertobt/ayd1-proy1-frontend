@@ -1,0 +1,133 @@
+<section class="max-w-5xl mx-auto">
+  <header class="mb-6">
+    <h1 class="text-3xl font-extrabold tracking-tight">
+      {{ isEdit ? 'Editar sucursal' : 'Nueva sucursal' }}
+    </h1>
+    <p class="text-sm text-slate-500 mt-1">Administra el registro y actualización de sucursales.</p>
+  </header>
+
+  <div *ngIf="errorMsg" class="mb-4 p-3 rounded border border-red-200 bg-red-50 text-red-700 text-sm">
+    {{ errorMsg }}
+  </div>
+
+  <div *ngIf="loading" class="rounded-2xl border bg-white shadow-sm p-6">
+    <div class="animate-pulse space-y-3">
+      <div class="h-4 bg-slate-200 rounded w-1/3"></div>
+      <div class="h-28 bg-slate-200 rounded"></div>
+    </div>
+  </div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+    <div class="rounded-2xl border bg-white shadow-sm">
+      <div class="p-6 grid gap-6 md:grid-cols-2">
+
+        <!-- Código -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Código<span class="text-red-500">*</span></label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 outline-none
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
+                   read-only:bg-slate-50"
+            formControlName="branch_code"
+            placeholder="Ej: SUC001"
+            [readonly]="isEdit">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['branch_code'].invalid">Requerido</span>
+        </div>
+
+        <!-- Nombre -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Nombre<span class="text-red-500">*</span></label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 outline-none
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="branch_name"
+            placeholder="Sucursal Central">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['branch_name'].invalid">Requerido</span>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Teléfono</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 outline-none
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="phone"
+            placeholder="+502 2222-0000">
+        </div>
+
+        <!-- Email -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Email</label>
+          <input
+            type="email"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 outline-none
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="email"
+            placeholder="sucursal@empresa.com">
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['email'].invalid">Email inválido</span>
+        </div>
+
+        <!-- Ciudad -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Ciudad</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 outline-none
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="city"
+            placeholder="Guatemala">
+        </div>
+
+        <!-- Estado -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Estado/Depto</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 outline-none
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="state"
+            placeholder="Guatemala">
+        </div>
+
+        <!-- Dirección -->
+        <div class="grid gap-2 md:col-span-2">
+          <label class="text-sm font-medium">Dirección<span class="text-red-500">*</span></label>
+          <textarea
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
+                   placeholder-slate-400 text-slate-800 min-h-[100px] outline-none
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="address"
+            placeholder="Dirección completa"></textarea>
+          <span class="text-xs text-red-600" *ngIf="submitted && form.controls['address'].invalid">Requerido</span>
+        </div>
+
+        <!-- Activo -->
+        <div class="md:col-span-2">
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" formControlName="active" class="h-4 w-4 accent-indigo-600">
+            <span class="text-sm">Activo</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="saveError" class="p-3 rounded border border-red-200 bg-red-50 text-red-700 text-sm">
+      {{ saveError }}
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+      <button
+        class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer"
+        [disabled]="saving || (submitted && form.invalid)">
+        {{ saving ? 'Guardando…' : (isEdit ? 'Guardar cambios' : 'Crear sucursal') }}
+      </button>
+      <button type="button" class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50 cursor-pointer" (click)="back()">
+        Cancelar
+      </button>
+    </div>
+  </form>
+</section>
