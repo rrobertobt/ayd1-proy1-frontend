@@ -1,22 +1,47 @@
-<header class="bg-white dark:bg-surface-800 shadow-sm">
-  <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
-    <div class="text-2xl font-bold text-primary">SIE</div>
-    <p-menubar [model]="menuItems">
-      <ng-template #item let-item>
+<header class="bg-white dark:bg-surface-800 border-b border-black">
+  <nav class="container mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="text-base font-black text-black flex items-center gap-2">SIE - Operaciones
+    </div>
+    <ul class="flex items-center gap-4">
+      @for (item of menuItems; track item.label) {
+      <li>
         <a
           [routerLink]="item.routerLink"
           class="flex items-center gap-2 hover:text-primary-emphasis transition px-3 py-1.5"
+          routerLinkActive="text-primary-emphasis font-semibold"
         >
           @if(item.icon){
           <ng-icon [name]="item.icon"></ng-icon>
           }
           {{ item.label }}
         </a>
-      </ng-template>
-    </p-menubar>
+      </li>
+      }
+    </ul>
     <div class="space-x-4">
       <!-- <p-button variant="outlined" label="Inicia sesión"></p-button>
       <p-button label="Regístrate"></p-button> -->
+
+      @if (authService.user()) {
+      <div class="flex items-center gap-2 text-primary-emphasis">
+        <ng-icon name="heroUserCircle" />
+        <a class="font-semibold hover:text-primary-emphasis" [routerLink]="'/ops/profile'">
+          @if (!authService.user()?.first_name && !authService.user()?.last_name) {
+          {{ authService.user()?.full_name }}
+          } @else {
+          {{ authService.user()?.first_name }} {{ authService.user()?.last_name }}
+          }
+        </a>
+        <p-button
+          icon="pi pi-sign-out"
+          (click)="authService.logout()"
+          size="small"
+          variant="text"
+          pTooltip="Cerrar sesión"
+          tooltipPosition="top"
+        />
+      </div>
+      }
     </div>
   </nav>
 </header>
