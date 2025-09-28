@@ -1,0 +1,245 @@
+<section class="max-w-5xl mx-auto">
+  <!-- Title -->
+  <header class="mb-6">
+    <h1 class="text-3xl font-extrabold tracking-tight">Nuevo ingreso</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      <!-- Two-step employee hiring flow -->
+      Flujo de contratación en dos pasos: datos personales y condiciones del contrato.
+    </p>
+  </header>
+
+  <!-- Stepper -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="flex items-center gap-2">
+      <div
+        class="h-8 w-8 rounded-full flex items-center justify-center"
+        [class.bg-indigo-600]="step === 1"
+        [class.text-white]="step === 1"
+        [class.bg-slate-200]="step !== 1"
+      >
+        1
+      </div>
+      <span class="text-sm">Datos personales</span>
+    </div>
+    <div class="h-px flex-1 bg-slate-200"></div>
+    <div class="flex items-center gap-2">
+      <div
+        class="h-8 w-8 rounded-full flex items-center justify-center"
+        [class.bg-indigo-600]="step === 2"
+        [class.text-white]="step === 2"
+        [class.bg-slate-200]="step !== 2"
+      >
+        2
+      </div>
+      <span class="text-sm">Contrato</span>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <form *ngIf="step === 1" [formGroup]="userForm" class="space-y-6">
+    <div class="rounded-2xl border bg-white shadow-sm">
+      <div class="p-6 grid gap-6 md:grid-cols-2">
+        <!-- Email -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Email*</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="email"
+            placeholder="empleado@empresa.com"
+          />
+        </div>
+        <!-- Rol -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Rol*</label>
+          <select
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="role_id"
+          >
+            <option *ngFor="let r of roles" [ngValue]="r.role_id">{{ r.role_name }}</option>
+          </select>
+        </div>
+
+        <!-- Nombres / Apellidos -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Nombre(s)*</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="first_name"
+            placeholder="Ana"
+          />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Apellidos*</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="last_name"
+            placeholder="Gómez"
+          />
+        </div>
+
+        <!-- Teléfono / Documento -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Teléfono</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="phone"
+            placeholder="+502 2222-0000"
+          />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Documento</label>
+          <input
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="national_id"
+            placeholder="DPI / NIT"
+          />
+        </div>
+
+        <!-- Dirección -->
+        <div class="grid gap-2 md:col-span-2">
+          <label class="text-sm font-medium">Dirección</label>
+          <textarea
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 min-h-[88px] outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="address"
+            placeholder="Dirección completa"
+          ></textarea>
+        </div>
+
+        <!-- Seguridad y estado -->
+        <div class="md:col-span-2 flex flex-wrap items-center gap-6">
+          <label class="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              formControlName="two_factor_enabled"
+              class="h-4 w-4 accent-indigo-600"
+            />
+            <span class="text-sm">Habilitar 2FA</span>
+          </label>
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" formControlName="active" class="h-4 w-4 accent-indigo-600" />
+            <span class="text-sm">Activo</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <button
+        type="button"
+        class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50"
+        (click)="cancel()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50"
+        [disabled]="userForm.invalid"
+        (click)="next()"
+      >
+        Continuar
+      </button>
+    </div>
+  </form>
+
+  <!-- Step 2 -->
+  <form *ngIf="step === 2" [formGroup]="contractForm" class="space-y-6">
+    <div class="rounded-2xl border bg-white shadow-sm">
+      <div class="p-6 grid gap-6 md:grid-cols-2">
+        <!-- Tipo -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Tipo de contrato*</label>
+          <select
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="contract_type_id"
+          >
+            <option *ngFor="let t of types" [ngValue]="t.contract_type_id">
+              {{ t.type_name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Comisión -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">% Comisión*</label>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            step="0.01"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="commission_percentage"
+            placeholder="Ej: 25"
+          />
+        </div>
+
+        <!-- Salario base -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Salario base</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="base_salary"
+            placeholder="0.00"
+          />
+        </div>
+
+        <!-- Fechas -->
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Fecha inicio*</label>
+          <input
+            type="date"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="start_date"
+          />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">Fecha fin</label>
+          <input
+            type="date"
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="end_date"
+          />
+        </div>
+
+        <!-- Observaciones -->
+        <div class="grid gap-2 md:col-span-2">
+          <label class="text-sm font-medium">Observaciones</label>
+          <textarea
+            class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white placeholder-slate-400 text-slate-800 min-h-[88px] outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+            formControlName="observations"
+            placeholder="Notas del contrato"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between gap-3">
+      <button
+        type="button"
+        class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50"
+        (click)="back()"
+      >
+        Atrás
+      </button>
+      <div class="flex gap-3">
+        <button
+          type="button"
+          class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50"
+          (click)="cancel()"
+        >
+          Cancelar
+        </button>
+        <button
+          class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50"
+          [disabled]="contractForm.invalid"
+          (click)="submit()"
+        >
+          Finalizar contratación
+        </button>
+      </div>
+    </div>
+  </form>
+</section>
