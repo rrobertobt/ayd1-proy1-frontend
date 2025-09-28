@@ -1,19 +1,19 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroHome } from '@ng-icons/heroicons/outline';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { Menubar } from 'primeng/menubar';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { heroHome } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-default-top-nav',
+  selector: 'app-ops-top-nav',
   imports: [ButtonModule, RouterLink, Menubar, NgIcon],
   viewProviders: [provideIcons({ heroHome })],
-  templateUrl: './default-top-nav.html',
-  styleUrl: './default-top-nav.css',
+  templateUrl: './ops-top-nav.html',
+  styleUrl: './ops-top-nav.css',
 })
-export class DefaultTopNav {
+export class OpsTopNav {
   menuItems: MenuItem[] = [
     {
       label: 'Inicio',
@@ -23,6 +23,6 @@ export class DefaultTopNav {
     {
       label: 'Acerca de',
       routerLink: '/about',
-    }
+    },
   ];
 }

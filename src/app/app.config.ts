@@ -7,6 +7,7 @@ import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+import Lara from '@primeuix/themes/lara';
 import { definePreset } from '@primeuix/themes';
 
 import { routes } from './app.routes';
@@ -20,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         // preset: Aura,
-        preset: definePreset(Aura, {
+        preset: definePreset(Lara, {
           semantic: {
             primary: {
               50: '{rose.50}',
