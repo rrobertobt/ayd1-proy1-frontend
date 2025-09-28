@@ -37,9 +37,10 @@ export class LoginPage {
 
     const credentials = this.loginForm.getRawValue();
     this.authService.login(credentials).subscribe({
-      next: () => {
+      next: (user) => {
         this.loading.set(false);
-        this.router.navigateByUrl('/');
+        const targetRoute = this.authService.getHomeRouteForRole(user?.role);
+        this.router.navigateByUrl(targetRoute);
       },
       error: (error) => {
         this.loading.set(false);

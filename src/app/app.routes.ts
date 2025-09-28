@@ -4,11 +4,17 @@ import { DefaultLayout } from './default-layout/default-layout';
 import { LandingPage } from './pages/landing-page/landing-page';
 import { AboutPage } from './pages/about-page/about-page';
 import { LoginPage } from './pages/login-page/login-page';
+import {
+  redirectIfAuthenticatedGuard,
+  roleCanActivateGuard,
+  roleCanMatchGuard,
+} from './core/auth/auth.guards';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: LoginPage,
+    canActivate: [redirectIfAuthenticatedGuard],
   },
   {
     path: '',
@@ -27,6 +33,8 @@ export const routes: Routes = [
   },
   {
     path: 'ops', // coordinador/operaciones
+    canMatch: [roleCanMatchGuard],
+    canActivate: [roleCanActivateGuard],
     loadChildren: () => import('./routes/ops.routes').then((m) => m.OPS_ROUTES),
   },
 ];
