@@ -20,4 +20,8 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'ops', // coordinador/operaciones
+    loadChildren: () => import('./routes/ops.routes').then((m) => m.OPS_ROUTES),
+  },
 ];
