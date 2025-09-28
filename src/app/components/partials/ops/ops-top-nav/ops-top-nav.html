@@ -25,13 +25,13 @@
       @if (authService.user()) {
       <div class="flex items-center gap-2 text-primary-emphasis">
         <ng-icon name="heroUserCircle" />
-        <span>
+        <a class="font-semibold hover:text-primary-emphasis" [routerLink]="'/ops/profile'">
           @if (!authService.user()?.first_name && !authService.user()?.last_name) {
           {{ authService.user()?.full_name }}
           } @else {
           {{ authService.user()?.first_name }} {{ authService.user()?.last_name }}
           }
-        </span>
+        </a>
         <p-button
           icon="pi pi-sign-out"
           (click)="authService.logout()"
