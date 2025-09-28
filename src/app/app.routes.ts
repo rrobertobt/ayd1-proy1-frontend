@@ -9,6 +9,7 @@ import {
   roleCanActivateGuard,
   roleCanMatchGuard,
 } from './core/auth/auth.guards';
+import { PrivateOpsLayout } from './layouts/private-ops-layout/private-ops-layout';
 
 export const routes: Routes = [
   {
@@ -33,6 +34,7 @@ export const routes: Routes = [
   },
   {
     path: 'ops', // coordinador/operaciones
+    component: PrivateOpsLayout,
     canMatch: [roleCanMatchGuard],
     canActivate: [roleCanActivateGuard],
     loadChildren: () => import('./routes/ops.routes').then((m) => m.OPS_ROUTES),
