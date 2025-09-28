@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, rgba(244, 114, 182, 0.15), transparent),
+    radial-gradient(circle at bottom, rgba(244, 114, 182, 0.1), transparent);
+  padding: 2rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface-card, #fff);
+  border-radius: 1.25rem;
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  border: 1px solid color-mix(in srgb, rgba(244, 114, 182, 0.35) 8%, transparent);
+}
+
+.login-card h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-color, #f43f5e);
+}
+
+.subtitle {
+  margin: 0 0 2rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.field label {
+  font-weight: 600;
+  color: var(--text-color, #111827);
+}
+
+.field input[pInputText] {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 0.82rem;
+}
+
+.form-error {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+  font-weight: 500;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 2rem 1.75rem;
+  }
+}
