@@ -120,5 +120,41 @@
       }
     </tbody>
   </table>
+  <div class="pagination-bar">
+    <span class="page-range">{{ pageRangeLabel() }}</span>
+    <div class="pagination-controls">
+      <label class="page-size">
+        Tamaño
+        <select
+          [value]="pageSize()"
+          (change)="onPageSizeChange($event)"
+          [disabled]="loading()"
+        >
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-chevron-left"
+        label="Anterior"
+        class="page-btn"
+        (click)="goToPreviousPage()"
+        [disabled]="isFirstPage() || loading()"
+      ></button>
+      <span class="page-index">Página {{ pageIndex() + 1 }} de {{ totalPages() }}</span>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-chevron-right"
+        label="Siguiente"
+        class="page-btn"
+        (click)="goToNextPage()"
+        [disabled]="isLastPage() || loading()"
+      ></button>
+    </div>
+  </div>
 </div>
 }
