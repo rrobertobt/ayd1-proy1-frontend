@@ -1,20 +1,16 @@
-<!-- Header -->
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-xl font-bold">Personal contratado</h1>
 
   <div class="flex gap-2">
-    <!-- Alta directa de usuario -->
     <a routerLink="/admin/users/new" class="px-3 py-2 text-sm rounded bg-indigo-600 text-white">
       Nuevo empleado
     </a>
-    <!-- Hiring wizard (opcional, flujo completo) -->
     <a routerLink="/admin/hiring/new" class="px-3 py-2 text-sm rounded border">
       Contratar
     </a>
   </div>
 </div>
 
-<!-- Loading -->
 <div class="rounded border bg-white" *ngIf="loading">
   <div class="p-4">
     <div class="animate-pulse space-y-3">
@@ -24,12 +20,10 @@
   </div>
 </div>
 
-<!-- Error -->
 <div *ngIf="!loading && errorMsg" class="p-3 rounded border border-red-200 bg-red-50 text-red-700 text-sm">
   {{ errorMsg }}
 </div>
 
-<!-- Table -->
 <div class="rounded border bg-white overflow-x-auto" *ngIf="!loading && !errorMsg">
   <table class="min-w-full text-sm">
     <thead class="bg-slate-100 text-slate-600">
@@ -60,15 +54,11 @@
           </button>
         </td>
         <td class="p-3 text-right space-x-2">
-          <!-- Edit user profile -->
           <a class="text-indigo-600 hover:underline" [routerLink]="['/admin/users', u.user_id]">Editar</a>
-          <!-- Contract history per user -->
           <a class="text-indigo-600 hover:underline" [routerLink]="['/admin/users', u.user_id, 'contracts']">Historial</a>
-          <!-- Remove -->
           <button class="text-red-600 hover:underline" (click)="delete(u.user_id)">Eliminar</button>
         </td>
       </tr>
-
       <tr *ngIf="items.length === 0">
         <td colspan="7" class="p-6 text-center text-slate-500">Sin registros</td>
       </tr>

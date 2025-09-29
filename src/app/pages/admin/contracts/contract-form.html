@@ -1,99 +1,73 @@
-<section class="max-w-5xl mx-auto">
+<section class="max-w-4xl mx-auto">
   <header class="mb-6">
     <h1 class="text-3xl font-extrabold tracking-tight">
       {{ isEdit ? 'Editar contrato' : 'Nuevo contrato' }}
     </h1>
-    <p class="text-sm text-slate-500 mt-1">
-      <!-- Contract type, dates and commission rules. -->
-      Tipo de contrato, fechas y porcentaje de comisión.
-    </p>
+    <p class="text-sm text-slate-500 mt-1">Datos del contrato y condiciones.</p>
   </header>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
-    <!-- Card -->
     <div class="rounded-2xl border bg-white shadow-sm">
       <div class="p-6 grid gap-6 md:grid-cols-2">
-        <!-- Empleado -->
         <div class="grid gap-2">
           <label class="text-sm font-medium">Empleado (user_id)*</label>
-          <input type="number" class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
-                 placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                 formControlName="user_id" placeholder="Ej: 2">
+          <input type="number" class="w-full rounded-md border px-3 py-2.5"
+                 formControlName="user_id" placeholder="ID del empleado" />
         </div>
 
-        <!-- Admin -->
-        <div class="grid gap-2">
-          <label class="text-sm font-medium">Admin (user_id)*</label>
-          <input type="number" class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
-                 placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                 formControlName="admin_id" placeholder="Ej: 1">
-        </div>
-
-        <!-- Tipo -->
         <div class="grid gap-2">
           <label class="text-sm font-medium">Tipo de contrato*</label>
-          <select class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800
-                         outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                  formControlName="contract_type_id">
+          <select class="w-full rounded-md border px-3 py-2.5" formControlName="contract_type_id">
+            <option [ngValue]="null" disabled>Selecciona un tipo…</option>
             <option *ngFor="let t of types" [ngValue]="t.contract_type_id">{{ t.type_name }}</option>
           </select>
         </div>
 
-        <!-- Comisión -->
         <div class="grid gap-2">
           <label class="text-sm font-medium">% Comisión*</label>
-          <input type="number" min="0" max="100" step="0.01" class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
-                 placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                 formControlName="commission_percentage" placeholder="Ej: 25">
+          <input type="number" min="0" max="100" step="0.01"
+                 class="w-full rounded-md border px-3 py-2.5"
+                 formControlName="commission_percentage" placeholder="Ej: 25" />
         </div>
 
-        <!-- Salario base -->
         <div class="grid gap-2">
           <label class="text-sm font-medium">Salario base</label>
-          <input type="number" min="0" step="0.01" class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
-                 placeholder-slate-400 text-slate-800 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                 formControlName="base_salary" placeholder="0.00">
+          <input type="number" min="0" step="0.01"
+                 class="w-full rounded-md border px-3 py-2.5"
+                 formControlName="base_salary" placeholder="0.00" />
         </div>
 
-        <!-- Fechas -->
         <div class="grid gap-2">
           <label class="text-sm font-medium">Fecha inicio*</label>
-          <input type="date" class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800
-                 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                 formControlName="start_date">
+          <input type="date" class="w-full rounded-md border px-3 py-2.5" formControlName="start_date" />
         </div>
+
         <div class="grid gap-2">
           <label class="text-sm font-medium">Fecha fin</label>
-          <input type="date" class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-800
-                 outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                 formControlName="end_date">
+          <input type="date" class="w-full rounded-md border px-3 py-2.5" formControlName="end_date" />
         </div>
 
-        <!-- Observaciones -->
         <div class="grid gap-2 md:col-span-2">
           <label class="text-sm font-medium">Observaciones</label>
-          <textarea class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
-                   placeholder-slate-400 text-slate-800 min-h-[88px] outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-                   formControlName="observations" placeholder="Notas del contrato"></textarea>
+          <textarea class="w-full rounded-md border px-3 py-2.5 min-h-[88px]"
+                    formControlName="observations" placeholder="Notas del contrato"></textarea>
         </div>
 
-        <!-- Activo -->
-        <div class="md:col-span-2">
+        <div class="md:col-span-2 flex items-center gap-3">
           <label class="inline-flex items-center gap-2">
-            <input type="checkbox" formControlName="active" class="h-4 w-4 accent-indigo-600">
+            <input type="checkbox" formControlName="active" class="h-4 w-4" />
             <span class="text-sm">Activo</span>
           </label>
         </div>
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="flex flex-col sm:flex-row gap-3 justify-end">
-      <button class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition disabled:opacity-50"
+    <div class="flex justify-end gap-3">
+      <button type="button" class="px-5 py-2.5 rounded-md border font-medium" (click)="back()">Cancelar</button>
+      <button class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium"
               [disabled]="submitted && form.invalid">
         {{ isEdit ? 'Guardar cambios' : 'Crear contrato' }}
       </button>
-      <button type="button" class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50" (click)="back()">Cancelar</button>
     </div>
   </form>
 </section>
