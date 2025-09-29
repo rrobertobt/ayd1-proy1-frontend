@@ -21,4 +21,11 @@ export const OPS_ROUTES: Routes = [
     loadComponent: () =>
       import('../pages/ops/deliveries-page/deliveries-page').then((m) => m.DeliveriesPage),
   },
+  {
+    path: 'create-assignment',
+    loadComponent: () =>
+      import('../pages/ops/create-assignment-page/create-assignment-page').then(
+        (m) => m.CreateAssignmentPage,
+      ),
+  }
 ];

@@ -1,7 +1,7 @@
 <section class="dashboard-header">
-  <div class="title-block">
-    <h1>Panel operativo</h1>
-    <p>Visión general del desempeño diario del coordinador.</p>
+  <div class="">
+     <h1 class="text-3xl font-extrabold tracking-tight">Panel operativo</h1>
+    <p class="text-sm text-muted-color-emphasis">Visión general del desempeño diario del coordinador.</p>
     @if (stats(); as data) {
       <div class="meta">
         <span>Fecha del dashboard: {{ data.dashboard_date | date:'fullDate' }}</span>
@@ -20,6 +20,18 @@
     (click)="refresh()"
   ></button>
 </section>
+
+@if (overviewMetrics().length) {
+  <section class="overview-grid">
+    @for (metric of overviewMetrics(); track metric.label) {
+      <article class="overview-card">
+        <h2>{{ metric.label }}</h2>
+        <p class="value">{{ metric.value }}</p>
+        <span>{{ metric.helper }}</span>
+      </article>
+    }
+  </section>
+}
 
 @if (errorMessage()) {
   <div class="feedback error">{{ errorMessage() }}</div>
