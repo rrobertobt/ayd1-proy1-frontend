@@ -1,26 +1,29 @@
 <div class="page-header">
   <div class="">
     <h1 class="text-3xl font-extrabold tracking-tight">Entregas</h1>
-    <p class="text-sm text-muted-color-emphasis">Consulta y gestiona las guías asignadas a tu operación.</p>
+    <p class="text-sm text-muted-color-emphasis">
+      Consulta y gestiona las guías asignadas a tu operación.
+    </p>
   </div>
   <div class="space-x-2">
-    <button
-      pButton
+    <a
+      class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
       routerLink="/ops/create-assignment"
       type="button"
-      icon="pi pi-plus"
-      label="Nueva asignación"
-    ></button>
+    >
+      <span class="pi pi-plus"></span>
+      Nueva asignación
+    </a>
     <button
-      pButton
       type="button"
-      icon="pi pi-refresh"
-      label="Actualizar"
       class="refresh-btn"
-      [loading]="loading()"
       [disabled]="loading()"
       (click)="refreshCurrent()"
-    ></button>
+      class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-700 disabled:opacity-50"
+    >
+      <span class="pi pi-refresh"></span>
+      Actualizar
+    </button>
   </div>
 </div>
 
@@ -28,14 +31,18 @@
   @for (option of tabOptions; track option.key) {
   <button
     type="button"
-    pButton
-    [label]="option.label"
-    class="tab-btn hover:ring-2 ring-transparent hover:ring-slate-400/40"
-    [class.active]="currentTab() === option.key"
-    (click)="selectTab(option.key)"
+    class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-1 cursor-pointer"
+    [class.bg-rose-100]="currentTab() === option.key"
+    [class.text-rose-700]="currentTab() === option.key"
+    [class.border-rose-200]="currentTab() === option.key"
+    [class.bg-slate-100]="currentTab() !== option.key"
+    [class.text-slate-600]="currentTab() !== option.key"
+    [class.border-slate-200]="true"
     [disabled]="loading() && currentTab() === option.key"
+    (click)="selectTab(option.key)"
   >
     <ng-icon name="{{ option.icon }}" class="tab-icon"></ng-icon>
+    {{ option.label }}
   </button>
   }
 </section>
@@ -125,13 +132,9 @@
     <div class="pagination-controls">
       <label class="page-size">
         Tamaño
-        <select
-          [value]="pageSize()"
-          (change)="onPageSizeChange($event)"
-          [disabled]="loading()"
-        >
+        <select [value]="pageSize()" (change)="onPageSizeChange($event)" [disabled]="loading()">
           @for (size of pageSizeOptions; track size) {
-            <option [value]="size">{{ size }}</option>
+          <option [value]="size">{{ size }}</option>
           }
         </select>
       </label>
