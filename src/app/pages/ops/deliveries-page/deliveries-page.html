@@ -1,18 +1,27 @@
 <div class="page-header">
-  <div class="titles">
-    <h1>Entregas</h1>
-    <p>Consulta y gestiona las guías asignadas a tu operación.</p>
+  <div class="">
+    <h1 class="text-3xl font-extrabold tracking-tight">Entregas</h1>
+    <p class="text-sm text-muted-color-emphasis">Consulta y gestiona las guías asignadas a tu operación.</p>
   </div>
-  <button
-    pButton
-    type="button"
-    icon="pi pi-refresh"
-    label="Actualizar"
-    class="refresh-btn"
-    [loading]="loading()"
-    [disabled]="loading()"
-    (click)="refreshCurrent()"
-  ></button>
+  <div class="space-x-2">
+    <button
+      pButton
+      routerLink="/ops/create-assignment"
+      type="button"
+      icon="pi pi-plus"
+      label="Nueva asignación"
+    ></button>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-refresh"
+      label="Actualizar"
+      class="refresh-btn"
+      [loading]="loading()"
+      [disabled]="loading()"
+      (click)="refreshCurrent()"
+    ></button>
+  </div>
 </div>
 
 <section class="tabs">
@@ -21,7 +30,7 @@
     type="button"
     pButton
     [label]="option.label"
-    class="tab-btn"
+    class="tab-btn hover:ring-2 ring-transparent hover:ring-slate-400/40"
     [class.active]="currentTab() === option.key"
     (click)="selectTab(option.key)"
     [disabled]="loading() && currentTab() === option.key"
@@ -111,5 +120,41 @@
       }
     </tbody>
   </table>
+  <div class="pagination-bar">
+    <span class="page-range">{{ pageRangeLabel() }}</span>
+    <div class="pagination-controls">
+      <label class="page-size">
+        Tamaño
+        <select
+          [value]="pageSize()"
+          (change)="onPageSizeChange($event)"
+          [disabled]="loading()"
+        >
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-chevron-left"
+        label="Anterior"
+        class="page-btn"
+        (click)="goToPreviousPage()"
+        [disabled]="isFirstPage() || loading()"
+      ></button>
+      <span class="page-index">Página {{ pageIndex() + 1 }} de {{ totalPages() }}</span>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-chevron-right"
+        label="Siguiente"
+        class="page-btn"
+        (click)="goToNextPage()"
+        [disabled]="isLastPage() || loading()"
+      ></button>
+    </div>
+  </div>
 </div>
 }

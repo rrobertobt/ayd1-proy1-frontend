@@ -31,6 +31,44 @@
   align-self: center;
 }
 
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.75rem;
+}
+
+.overview-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(59, 130, 246, 0.05));
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.overview-card h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color, #0f172a);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.overview-card .value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color, #f43f5e);
+}
+
+.overview-card span {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
 .feedback {
   border-radius: 1rem;
   padding: 1rem 1.25rem;
@@ -210,6 +248,10 @@
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .overview-card {
+    padding: 1rem;
   }
 
   .dashboard-header .refresh {

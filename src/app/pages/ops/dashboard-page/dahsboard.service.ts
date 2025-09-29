@@ -55,11 +55,23 @@ export interface DashboardResponse {
   courier_workload: DashboardCourierWorkload[];
 }
 
+export interface DashboardStatsResponse {
+  pending_deliveries: number;
+  unresolved_incidents: number;
+  coordinator_id: number;
+  total_couriers: number;
+  active_couriers: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   constructor(private readonly api: ApiService) {}
 
   getDashboardData(): Observable<DashboardResponse> {
     return this.api.get<DashboardResponse>('/coordinator/dashboard');
+  }
+
+  getDashboardStats(): Observable<DashboardStatsResponse> {
+    return this.api.get<DashboardStatsResponse>('/coordinator/dashboard/stats');
   }
 }

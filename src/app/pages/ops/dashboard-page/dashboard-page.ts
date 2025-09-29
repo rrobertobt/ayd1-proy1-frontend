@@ -12,7 +12,11 @@ import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { DashboardResponse, DashboardService } from './dahsboard.service';
+import {
+  DashboardResponse,
+  DashboardService,
+  DashboardStatsResponse,
+} from './dahsboard.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -29,6 +33,33 @@ export class DashboardPage implements OnInit {
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly stats = signal<DashboardResponse | null>(null);
+  protected readonly overviewStats = signal<DashboardStatsResponse | null>(null);
+  protected readonly overviewMetrics = computed(() => {
+    const overview = this.overviewStats();
+    if (!overview) return [];
+    return [
+      {
+        label: 'Entregas pendientes',
+        value: overview.pending_deliveries,
+        helper: 'Guías sin asignar o pendientes de gestión',
+      },
+      {
+        label: 'Incidentes abiertos',
+        value: overview.unresolved_incidents,
+        helper: 'Requieren seguimiento del coordinador',
+      },
+      {
+        label: 'Couriers totales',
+        value: overview.total_couriers,
+        helper: `Coordinador #${overview.coordinator_id}`,
+      },
+      {
+        label: 'Couriers activos',
+        value: overview.active_couriers,
+        helper: 'Actualmente conectados o en servicio',
+      },
+    ];
+  });
 
   protected readonly summaryCards = computed(() => {
     const data = this.stats();
@@ -92,10 +123,12 @@ export class DashboardPage implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboard();
+    this.loadOverviewStats();
   }
 
   protected refresh(): void {
     this.loadDashboard(true);
+    this.loadOverviewStats(true);
   }
 
   private loadDashboard(force = false): void {
@@ -116,11 +149,33 @@ export class DashboardPage implements OnInit {
         },
         error: (error) => {
           console.error('Failed to load dashboard data', error);
-          this.errorMessage.set(
-            error?.message ?? 'No se pudo cargar el resumen del coordinador.'
-          );
+          this.messageError(error ?? new Error('No se pudo cargar el resumen.'));
           this.loading.set(false);
         },
       });
+  }
+
+  private loadOverviewStats(force = false): void {
+    if (force) {
+      this.errorMessage.set('');
+    }
+
+    this.dashboardService
+      .getDashboardStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.overviewStats.set(data);
+        },
+        error: (error) => {
+          console.error('Failed to load dashboard stats', error);
+          this.messageError(error);
+        },
+      });
+  }
+
+  private messageError(error: any): void {
+    const message = error?.message ?? 'Hubo un problema cargando la información.';
+    this.errorMessage.set(message);
   }
 }
