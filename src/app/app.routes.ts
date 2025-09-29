@@ -4,6 +4,7 @@ import { DefaultLayout } from './default-layout/default-layout';
 import { LandingPage } from './pages/landing-page/landing-page';
 import { AboutPage } from './pages/about-page/about-page';
 import { LoginPage } from './pages/login-page/login-page';
+import { PublicTrackingPage } from './pages/clientPage/public-tracking-page';
 import {
   redirectIfAuthenticatedGuard,
   roleCanActivateGuard,
@@ -25,6 +26,11 @@ export const routes: Routes = [
       { path: '', component: LandingPage },
       { path: 'about', component: AboutPage },
     ],
+  },
+  
+  {
+    path: 'tracking',
+    component: PublicTrackingPage,
   },
   {
     path: 'admin', // administrador
