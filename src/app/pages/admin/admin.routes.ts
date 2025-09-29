@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AdminLayout } from './layout/admin-layout';
+import { AdminProfilePage } from './profile-page/profile-page';
 
 export const ADMIN_ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
@@ -84,5 +85,9 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: 'config',
     loadComponent: () => import('./config/system-config').then((m) => m.SystemConfig),
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./profile-page/profile-page').then((m) => m.AdminProfilePage),
   },
 ];

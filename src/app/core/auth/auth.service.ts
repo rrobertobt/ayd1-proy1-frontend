@@ -75,6 +75,19 @@ export interface ConfirmDisableTwoFactorPayload {
   verification_code: string;
 }
 
+export interface VerifyTwoFactorPayload {
+  email: string;
+  verification_code: string;
+}
+
+export interface ResendTwoFactorCodePayload {
+  email: string;
+}
+
+export type LoginResult =
+  | { status: 'success'; user: SessionUser }
+  | { status: 'two_factor_required'; email: string; message?: string };
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly userInfoKey = 'user_info';
@@ -98,10 +111,30 @@ export class AuthService {
 
   constructor(private readonly api: ApiService, private readonly router: Router) {}
 
-  login(credentials: LoginRequest): Observable<SessionUser> {
+  login(credentials: LoginRequest): Observable<LoginResult> {
     return this.api.post<LoginResponse>('/auth/login', credentials).pipe(
-      tap((response) => this.persistSession(response)),
-      map(() => this.currentUser() as SessionUser)
+      map((response) => {
+        const hasToken = !!response.access_token;
+
+        if (hasToken) {
+          this.persistSession(response);
+          return { status: 'success', user: this.currentUser() as SessionUser } as LoginResult;
+        }
+
+        this.api.clearTokens();
+        this.storage?.removeItem(this.userInfoKey);
+        this.storage?.removeItem(this.tokenTypeKey);
+        this.storage?.removeItem(this.expiresAtKey);
+        this.currentUser.set(null);
+
+        return {
+          status: 'two_factor_required',
+          email: credentials.email,
+          message: response.two_factor_required
+            ? 'Hemos enviado un código de verificación a tu correo.'
+            : undefined,
+        } as LoginResult;
+      })
     );
   }
 
@@ -169,6 +202,17 @@ export class AuthService {
     return this.api.post<void>('/auth/confirm-disable-2fa', payload).pipe(
       tap(() => this.restoreSession())
     );
+  }
+
+  verifyTwoFactor(payload: VerifyTwoFactorPayload): Observable<SessionUser> {
+    return this.api.post<LoginResponse>('/auth/verify-2fa', payload).pipe(
+      tap((response) => this.persistSession(response)),
+      map(() => this.currentUser() as SessionUser)
+    );
+  }
+
+  resendTwoFactorCode(payload: ResendTwoFactorCodePayload): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('/auth/resend-2fa-code', payload);
   }
 
   getHomeRouteForRole(role?: string | null): string {
