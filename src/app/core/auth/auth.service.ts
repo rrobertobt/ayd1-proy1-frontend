@@ -52,6 +52,29 @@ export interface SessionUser {
   created_at?: string;
 }
 
+export interface ChangePasswordPayload {
+  current_password: string;
+  new_password: string;
+  confirm_password: string;
+}
+
+export interface EnableTwoFactorPayload {
+  password: string;
+}
+
+export interface RequestDisableTwoFactorPayload {
+  password: string;
+}
+
+export interface RequestDisableTwoFactorResponse {
+  code_sent: boolean;
+  message: string;
+}
+
+export interface ConfirmDisableTwoFactorPayload {
+  verification_code: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly userInfoKey = 'user_info';
@@ -121,6 +144,31 @@ export class AuthService {
   getExpiresAt(): number | null {
     const raw = this.storage?.getItem(this.expiresAtKey);
     return raw ? Number(raw) : null;
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<void> {
+    return this.api.post<void>('/auth/change-password', payload);
+  }
+
+  enableTwoFactor(payload: EnableTwoFactorPayload): Observable<void> {
+    return this.api.post<void>('/auth/enable-2fa', payload).pipe(
+      tap(() => {
+        // Refresh user info so UI reflects the latest 2FA status
+        this.restoreSession();
+      })
+    );
+  }
+
+  requestDisableTwoFactor(
+    payload: RequestDisableTwoFactorPayload
+  ): Observable<RequestDisableTwoFactorResponse> {
+    return this.api.post<RequestDisableTwoFactorResponse>('/auth/request-disable-2fa', payload);
+  }
+
+  confirmDisableTwoFactor(payload: ConfirmDisableTwoFactorPayload): Observable<void> {
+    return this.api.post<void>('/auth/confirm-disable-2fa', payload).pipe(
+      tap(() => this.restoreSession())
+    );
   }
 
   getHomeRouteForRole(role?: string | null): string {
