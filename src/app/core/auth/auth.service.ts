@@ -52,6 +52,42 @@ export interface SessionUser {
   created_at?: string;
 }
 
+export interface ChangePasswordPayload {
+  current_password: string;
+  new_password: string;
+  confirm_password: string;
+}
+
+export interface EnableTwoFactorPayload {
+  password: string;
+}
+
+export interface RequestDisableTwoFactorPayload {
+  password: string;
+}
+
+export interface RequestDisableTwoFactorResponse {
+  code_sent: boolean;
+  message: string;
+}
+
+export interface ConfirmDisableTwoFactorPayload {
+  verification_code: string;
+}
+
+export interface VerifyTwoFactorPayload {
+  email: string;
+  verification_code: string;
+}
+
+export interface ResendTwoFactorCodePayload {
+  email: string;
+}
+
+export type LoginResult =
+  | { status: 'success'; user: SessionUser }
+  | { status: 'two_factor_required'; email: string; message?: string };
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly userInfoKey = 'user_info';
@@ -75,10 +111,30 @@ export class AuthService {
 
   constructor(private readonly api: ApiService, private readonly router: Router) {}
 
-  login(credentials: LoginRequest): Observable<SessionUser> {
+  login(credentials: LoginRequest): Observable<LoginResult> {
     return this.api.post<LoginResponse>('/auth/login', credentials).pipe(
-      tap((response) => this.persistSession(response)),
-      map(() => this.currentUser() as SessionUser)
+      map((response) => {
+        const hasToken = !!response.access_token;
+
+        if (hasToken) {
+          this.persistSession(response);
+          return { status: 'success', user: this.currentUser() as SessionUser } as LoginResult;
+        }
+
+        this.api.clearTokens();
+        this.storage?.removeItem(this.userInfoKey);
+        this.storage?.removeItem(this.tokenTypeKey);
+        this.storage?.removeItem(this.expiresAtKey);
+        this.currentUser.set(null);
+
+        return {
+          status: 'two_factor_required',
+          email: credentials.email,
+          message: response.two_factor_required
+            ? 'Hemos enviado un código de verificación a tu correo.'
+            : undefined,
+        } as LoginResult;
+      })
     );
   }
 
@@ -121,6 +177,42 @@ export class AuthService {
   getExpiresAt(): number | null {
     const raw = this.storage?.getItem(this.expiresAtKey);
     return raw ? Number(raw) : null;
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<void> {
+    return this.api.post<void>('/auth/change-password', payload);
+  }
+
+  enableTwoFactor(payload: EnableTwoFactorPayload): Observable<void> {
+    return this.api.post<void>('/auth/enable-2fa', payload).pipe(
+      tap(() => {
+        // Refresh user info so UI reflects the latest 2FA status
+        this.restoreSession();
+      })
+    );
+  }
+
+  requestDisableTwoFactor(
+    payload: RequestDisableTwoFactorPayload
+  ): Observable<RequestDisableTwoFactorResponse> {
+    return this.api.post<RequestDisableTwoFactorResponse>('/auth/request-disable-2fa', payload);
+  }
+
+  confirmDisableTwoFactor(payload: ConfirmDisableTwoFactorPayload): Observable<void> {
+    return this.api.post<void>('/auth/confirm-disable-2fa', payload).pipe(
+      tap(() => this.restoreSession())
+    );
+  }
+
+  verifyTwoFactor(payload: VerifyTwoFactorPayload): Observable<SessionUser> {
+    return this.api.post<LoginResponse>('/auth/verify-2fa', payload).pipe(
+      tap((response) => this.persistSession(response)),
+      map(() => this.currentUser() as SessionUser)
+    );
+  }
+
+  resendTwoFactorCode(payload: ResendTwoFactorCodePayload): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('/auth/resend-2fa-code', payload);
   }
 
   getHomeRouteForRole(role?: string | null): string {
