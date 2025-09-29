@@ -1,0 +1,178 @@
+<p-toast></p-toast>
+
+<section class="page-header">
+  <div>
+    <h1 class="text-3xl font-extrabold tracking-tight">Registrar incidente</h1>
+    <p class="text-sm text-muted-color-emphasis">Documenta el incidente y notifica al equipo con la información clave.</p>
+  </div>
+  <button
+    pButton
+    type="button"
+    icon="pi pi-refresh"
+    label="Actualizar listas"
+    class="refresh-btn"
+    [loading]="isLoading()"
+    [disabled]="isLoading()"
+    (click)="loadOptions()"
+  ></button>
+</section>
+
+@if (loadError()) {
+<div class="feedback error">{{ loadError() }}</div>
+}
+
+<form class="incident-form" [formGroup]="form" (ngSubmit)="submitIncident()" novalidate>
+  <div class="grid">
+    <div class="field full">
+      <label for="guide">Guía relacionada</label>
+      <p-auto-complete
+        id="guide"
+        formControlName="guide_id"
+        [suggestions]="guideSuggestions"
+        (completeMethod)="searchGuides($event)"
+        optionLabel="guide_number"
+        optionValue="guide_id"
+        [dropdown]="true"
+        [forceSelection]="true"
+        [disabled]="loadingGuides()"
+        placeholder="Busca por número de guía, comercio o destinatario"
+      >
+        <ng-template pTemplate="item" let-guide>
+          <div class="dropdown-item">
+            <span class="code">{{ guide.guide_number }}</span>
+            <small>{{ guide.business_name }} → {{ guide.recipient_name }}</small>
+          </div>
+        </ng-template>
+      </p-auto-complete>
+      <small *ngIf="hasError('guide_id', 'required')" class="error"
+        >Debes seleccionar una guía.</small
+      >
+    </div>
+
+    <div class="field full">
+      <label for="incidentType">Tipo de incidente</label>
+      <p-auto-complete
+        id="incidentType"
+        formControlName="incident_type_id"
+        [suggestions]="incidentTypeSuggestions"
+        (completeMethod)="searchIncidentTypes($event)"
+        optionLabel="type_name"
+        optionValue="incident_type_id"
+        [dropdown]="true"
+        [forceSelection]="true"
+        [disabled]="loadingIncidentTypes()"
+        placeholder="Selecciona un tipo de incidente"
+      >
+        <ng-template pTemplate="item" let-type>
+          <div class="dropdown-item">
+            <span class="code">{{ type.type_name }}</span>
+            <small>Requiere devolución: {{ type.requires_return ? 'Sí' : 'No' }}</small>
+          </div>
+        </ng-template>
+      </p-auto-complete>
+      <small *ngIf="hasError('incident_type_id', 'required')" class="error">
+        Debes seleccionar un tipo de incidente.
+      </small>
+    </div>
+
+    <div class="field">
+      <label for="severity">Severidad</label>
+      <!-- <p-auto-complete
+        id="severity"
+        formControlName="severity"
+        [suggestions]="severityOptions"
+        optionLabel="label"
+        optionValue="value"
+      ></p-auto-complete> -->
+      <p-select
+        id="severity"
+        formControlName="severity"
+        [options]="severityOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecciona una prioridad"
+      ></p-select>
+    </div>
+
+    <div class="field switch">
+      <label for="requiresReturn">Requiere retorno inmediato</label>
+      <p-toggleSwitch
+        id="requiresReturn"
+        formControlName="requires_immediate_return"
+      ></p-toggleSwitch>
+      <small>Activa si el paquete debe regresar al centro de operaciones.</small>
+    </div>
+
+    <div class="field switch">
+      <label for="customerContacted">Cliente contactado</label>
+      <p-toggleSwitch id="customerContacted" formControlName="customer_contacted"></p-toggleSwitch>
+      <small>Marca si ya se contactó al cliente para dar seguimiento.</small>
+    </div>
+
+    <div class="field full">
+      <label for="description">Descripción del incidente</label>
+      <textarea
+        pInputTextarea
+        id="description"
+        formControlName="description"
+        rows="4"
+        placeholder="Describe con detalle lo ocurrido"
+      ></textarea>
+      <small *ngIf="hasError('description', 'required')" class="error">
+        La descripción es obligatoria.
+      </small>
+      <small *ngIf="hasError('description', 'minlength')" class="error">
+        Utiliza al menos 10 caracteres.
+      </small>
+    </div>
+
+    <div class="field full">
+      <label for="immediateAction">Acción inmediata</label>
+      <textarea
+        pInputTextarea
+        id="immediateAction"
+        formControlName="immediate_action"
+        rows="3"
+        placeholder="Describe la acción que se realizó de inmediato"
+      ></textarea>
+      <small *ngIf="hasError('immediate_action', 'required')" class="error">
+        Indica la acción realizada.
+      </small>
+      <small *ngIf="hasError('immediate_action', 'minlength')" class="error">
+        Utiliza al menos 5 caracteres.
+      </small>
+    </div>
+
+    <div class="field full">
+      <label for="suggestedResolution">Resolución sugerida</label>
+      <textarea
+        pInputTextarea
+        id="suggestedResolution"
+        formControlName="suggested_resolution"
+        rows="3"
+        placeholder="Comparte la resolución sugerida o pasos a seguir"
+      ></textarea>
+      <small *ngIf="hasError('suggested_resolution', 'required')" class="error">
+        Indica la resolución sugerida.
+      </small>
+      <small *ngIf="hasError('suggested_resolution', 'minlength')" class="error">
+        Utiliza al menos 5 caracteres.
+      </small>
+    </div>
+  </div>
+
+  @if (submitError()) {
+  <div class="feedback error">{{ submitError() }}</div>
+  }
+
+  <div class="actions">
+    <button
+      pButton
+      type="submit"
+      label="Registrar incidente"
+      class="submit-btn"
+      [loading]="submitting()"
+      [disabled]="submitting() || isLoading()"
+    ></button>
+  </div>
+</form>
