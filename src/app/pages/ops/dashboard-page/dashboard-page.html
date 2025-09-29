@@ -1,0 +1,178 @@
+<section class="dashboard-header">
+  <div class="title-block">
+    <h1>Panel operativo</h1>
+    <p>Visión general del desempeño diario del coordinador.</p>
+    @if (stats(); as data) {
+      <div class="meta">
+        <span>Fecha del dashboard: {{ data.dashboard_date | date:'fullDate' }}</span>
+        <span>Última actualización: {{ data.last_updated | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+    }
+  </div>
+  <button
+    pButton
+    type="button"
+    icon="pi pi-refresh"
+    label="Actualizar"
+    class="refresh"
+    [loading]="loading()"
+    [disabled]="loading()"
+    (click)="refresh()"
+  ></button>
+</section>
+
+@if (errorMessage()) {
+  <div class="feedback error">{{ errorMessage() }}</div>
+}
+
+@if (!stats() && loading()) {
+  <div class="skeleton-grid">
+    @for (_ of [0,1,2,3,4,5]; track $index) {
+      <p-card>
+        <div class="card-skeleton">
+          <p-skeleton width="60%" height="1.1rem"></p-skeleton>
+          <p-skeleton width="40%" height="2.2rem"></p-skeleton>
+          <p-skeleton width="80%" height="0.8rem"></p-skeleton>
+        </div>
+      </p-card>
+    }
+  </div>
+}
+
+@if (stats()) {
+  <section class="cards-grid">
+    @for (card of summaryCards(); track card.label) {
+      <p-card>
+        <h2>{{ card.label }}</h2>
+        <p class="value">{{ card.value }}</p>
+      </p-card>
+    }
+  </section>
+
+  <section class="cards-grid kpis">
+    @for (card of performanceCards(); track card.label) {
+      <p-card>
+        <div class="card-heading">
+          <h3>{{ card.label }}</h3>
+          <p>{{ card.helper }}</p>
+        </div>
+        <p class="value">{{ card.value }}</p>
+      </p-card>
+    }
+  </section>
+
+  <section class="columns">
+    <div class="column">
+      <header>
+        <h2>Entregas pendientes recientes</h2>
+        <small>Piezas que necesitan seguimiento inmediato</small>
+      </header>
+      @if (recentPendingDeliveries().length) {
+        <ul class="items">
+          @for (item of recentPendingDeliveries(); track item.guide_id) {
+            <li>
+              <div class="item-main">
+                <span class="guide">{{ item.guide_number }}</span>
+                <p>{{ item.business_name }} → {{ item.recipient_name }}</p>
+              </div>
+              <div class="item-meta">
+                <p-tag [value]="item.priority" severity="warning"></p-tag>
+                <span>{{ item.current_state }}</span>
+                <small>Asignado a: {{ item.assigned_courier || 'Sin asignar' }}</small>
+                <small>{{ item.created_at | date:'dd/MM, HH:mm' }}</small>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="feedback empty">
+          <h3>No hay entregas pendientes</h3>
+          <p>Buen trabajo, no tienes pendientes urgentes.</p>
+        </div>
+      }
+    </div>
+
+    <div class="column">
+      <header>
+        <h2>Incidentes recientes</h2>
+        <small>Eventos reportados en las últimas horas</small>
+      </header>
+      @if (recentIncidents().length) {
+        <ul class="items">
+          @for (incident of recentIncidents(); track incident.incident_id) {
+            <li>
+              <div class="item-main">
+                <span class="guide">{{ incident.guide_number }}</span>
+                <p>{{ incident.incident_type }}</p>
+              </div>
+              <div class="item-meta">
+                <p-tag
+                  [value]="incident.resolved ? 'Resuelto' : 'Pendiente'"
+                  [severity]="incident.resolved ? 'success' : 'danger'"
+                ></p-tag>
+                <small>Reportado por {{ incident.reported_by }}</small>
+                <small>{{ incident.created_at | date:'dd/MM, HH:mm' }}</small>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="feedback empty">
+          <h3>Sin incidentes recientes</h3>
+          <p>Todo marcha estable en las últimas horas.</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="workload">
+    <header>
+      <h2>Carga de trabajo de couriers</h2>
+      <small>Rendimiento y asignaciones actuales</small>
+    </header>
+
+    @if (courierWorkload().length) {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Courier</th>
+              <th>Asignadas</th>
+              <th>Completadas</th>
+              <th>Pendientes</th>
+              <th>Incidentes</th>
+              <th>Contrato</th>
+              <th>Finalización</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (courier of courierWorkload(); track courier.courier_id) {
+              <tr>
+                <td>
+                  <span class="strong">{{ courier.courier_name }}</span>
+                  <small>ID {{ courier.courier_id }}</small>
+                </td>
+                <td>{{ courier.assigned_count }}</td>
+                <td>{{ courier.completed_count }}</td>
+                <td>{{ courier.pending_count }}</td>
+                <td>{{ courier.incidents_count }}</td>
+                <td>
+                  <p-tag
+                    [value]="courier.has_active_contract ? 'Vigente' : 'No vigente'"
+                    [severity]="courier.has_active_contract ? 'success' : 'warning'"
+                  ></p-tag>
+                </td>
+                <td>{{ courier.completion_rate | number:'1.0-1' }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="feedback empty">
+        <h3>Sin datos de couriers</h3>
+        <p>No se registran couriers en este período.</p>
+      </div>
+    }
+  </section>
+}

@@ -1,15 +1,24 @@
 import { Routes } from '@angular/router';
-import { PrivateOpsLayout } from '../layouts/private-ops-layout/private-ops-layout';
-import { OpsProfilePage } from '../pages/ops/profile-page/profile-page';
-import { OpsHomePage } from '../pages/ops/ops-home-page/ops-home-page';
 
 export const OPS_ROUTES: Routes = [
   {
     path: '',
-    component: OpsHomePage,
+    pathMatch: 'full',
+    redirectTo: 'dashboard',
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('../pages/ops/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
   },
   {
     path: 'profile',
-    component: OpsProfilePage,
-  }
+    loadComponent: () =>
+      import('../pages/ops/profile-page/profile-page').then((m) => m.OpsProfilePage),
+  },
+  {
+    path: 'deliveries',
+    loadComponent: () =>
+      import('../pages/ops/deliveries-page/deliveries-page').then((m) => m.DeliveriesPage),
+  },
 ];

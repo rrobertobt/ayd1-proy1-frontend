@@ -1,0 +1,115 @@
+<div class="page-header">
+  <div class="titles">
+    <h1>Entregas</h1>
+    <p>Consulta y gestiona las guías asignadas a tu operación.</p>
+  </div>
+  <button
+    pButton
+    type="button"
+    icon="pi pi-refresh"
+    label="Actualizar"
+    class="refresh-btn"
+    [loading]="loading()"
+    [disabled]="loading()"
+    (click)="refreshCurrent()"
+  ></button>
+</div>
+
+<section class="tabs">
+  @for (option of tabOptions; track option.key) {
+  <button
+    type="button"
+    pButton
+    [label]="option.label"
+    class="tab-btn"
+    [class.active]="currentTab() === option.key"
+    (click)="selectTab(option.key)"
+    [disabled]="loading() && currentTab() === option.key"
+  >
+    <ng-icon name="{{ option.icon }}" class="tab-icon"></ng-icon>
+  </button>
+  }
+</section>
+
+<section class="tab-description">
+  @for (option of tabOptions; track option.key) { @if (currentTab() === option.key) {
+  <p>{{ option.description }}</p>
+  } }
+</section>
+
+@if (errorMessage()) {
+<div class="feedback error">{{ errorMessage() }}</div>
+} @if (loading() && !deliveries().length) {
+<div class="feedback loading">Cargando entregas...</div>
+} @if (!loading() && !errorMessage() && !deliveries().length) {
+<div class="feedback empty">
+  <h2>No hay entregas para mostrar</h2>
+  <p>Cuando existan guías en esta categoría aparecerán listadas aquí.</p>
+</div>
+} @if (deliveries().length) {
+<div class="table-wrapper" [class.dimmed]="loading()">
+  <table>
+    <thead>
+      <tr>
+        <th>Guía</th>
+        <th>Estado</th>
+        <th>Courier</th>
+        <th>Negocio</th>
+        <th>Destinatario</th>
+        <th>Comisión</th>
+        <th>Asignada</th>
+        <th>Notas</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (delivery of deliveries(); track delivery.guide_id) {
+      <tr>
+        <td>
+          <span class="guide-number">{{ delivery.guide_number }}</span>
+          <small>Coordinador: {{ delivery.coordinator_name }}</small>
+        </td>
+        <td>
+          <span class="state">{{ delivery.current_state }}</span>
+          <small>{{ delivery.assignment_accepted ? 'Aceptada' : 'Por aceptar' }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.courier_name }}</span>
+          <small>ID {{ delivery.courier_id }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.business_name }}</span>
+          <small>{{ delivery.assignment_criteria ?? 'Sin criterio registrado' }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.recipient_name }}</span>
+          <small>{{ delivery.recipient_address }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.courier_commission | currency : 'GTQ' : 'symbol' : '1.2-2' }}</span>
+          <small>Base {{ delivery.base_price | currency : 'GTQ' : 'symbol' : '1.2-2' }}</small>
+        </td>
+        <td>
+          <span>
+            {{
+              delivery.assignment_accepted_at
+                ? (delivery.assignment_accepted_at | date : 'dd/MM/yyyy HH:mm')
+                : '—'
+            }}
+          </span>
+          <small>{{
+            delivery.assigned_at
+              ? (delivery.assigned_at | date : 'dd/MM/yyyy HH:mm')
+              : 'Sin asignar'
+          }}</small>
+        </td>
+        <td>
+          <span class="observations">
+            {{ delivery.observations || 'Sin observaciones' }}
+          </span>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+}
