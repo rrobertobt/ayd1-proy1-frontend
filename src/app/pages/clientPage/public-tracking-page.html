@@ -1,4 +1,4 @@
-<section class="max-w-3xl mx-auto">
+<section class="py-20">
   <header class="mb-6">
     <h1 class="text-3xl font-extrabold tracking-tight text-slate-800">Rastrea tu envío</h1>
     <p class="text-sm text-slate-500 mt-1">Ingresa el número de guía para ver el estado actual.</p>
@@ -39,53 +39,91 @@
   <!-- Result -->
   <div class="mt-4 grid gap-4" *ngIf="!loading && info">
     <div class="rounded-2xl border bg-white shadow-sm p-4">
-      <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div class="text-sm text-slate-500">Guía</div>
           <div class="text-xl font-semibold">{{ info?.guide_number }}</div>
         </div>
-        <span class="px-3 py-1 rounded-full text-xs border"
-              [class.bg-green-50]="info?.status === 'DELIVERED'">
-          {{ info?.status || '—' }}
-        </span>
+        <div class="text-right">
+          <div class="text-sm text-slate-500">Estado actual</div>
+          <span class="inline-flex items-center px-3 py-1 rounded-full border text-xs uppercase tracking-wide">
+            {{ info?.current_status || '—' }}
+          </span>
+        </div>
       </div>
 
       <div class="grid md:grid-cols-3 gap-3 mt-4 text-sm">
-        <div>
-          <div class="text-slate-500">Recibe</div>
-          <div class="font-medium">{{ info?.receiver_name || '—' }}</div>
-        </div>
-        <div>
-          <div class="text-slate-500">Teléfono</div>
-          <div class="font-medium">{{ info?.receiver_phone || '—' }}</div>
-        </div>
-        <div>
-          <div class="text-slate-500">Entregado</div>
-          <div class="font-medium">{{ info?.delivered_at || '—' }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Timeline -->
-    <div class="rounded-2xl border bg-white shadow-sm p-4">
-      <div class="text-sm font-medium mb-3">Movimiento de tu envío</div>
-      <div class="space-y-3">
-        <div class="flex items-start gap-3" *ngFor="let s of (info?.steps || [])">
-          <div class="h-2 w-2 mt-2 rounded-full bg-slate-400"></div>
-          <div class="flex-1">
-            <div class="font-medium">{{ s.status }}</div>
-            <div class="text-xs text-slate-500">
-              {{ s.timestamp || '—' }} <span *ngIf="s.location">· {{ s.location }}</span>
-            </div>
-            <div class="text-xs text-slate-600" *ngIf="s.notes">{{ s.notes }}</div>
+        <div class="space-y-1">
+          <div class="text-slate-500">Destinatario</div>
+          <div class="font-medium">{{ info?.recipient_name || '—' }}</div>
+          <div class="text-xs text-slate-500" *ngIf="info?.recipient_address">{{ info?.recipient_address }}</div>
+          <div class="text-xs text-slate-500" *ngIf="info?.recipient_city || info?.recipient_state">
+            {{ info?.recipient_city || '' }}<span *ngIf="info?.recipient_city && info?.recipient_state">, </span>{{ info?.recipient_state || '' }}
           </div>
         </div>
-        <div class="text-sm text-slate-500" *ngIf="(info?.steps || []).length === 0">Sin eventos todavía.</div>
+        <div class="space-y-1">
+          <div class="text-slate-500">Comercio</div>
+          <div class="font-medium">{{ info?.business_name || '—' }}</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-slate-500">Precio base</div>
+          <div class="font-medium">{{ info?.base_price != null ? ('Q ' + info?.base_price) : '—' }}</div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-3 mt-4 text-sm">
+        <div class="space-y-1">
+          <div class="text-slate-500">Repartidor asignado</div>
+          <div class="font-medium">{{ info?.courier_name || '—' }}</div>
+          <div class="text-xs text-slate-500" *ngIf="info?.courier_phone">Tel: {{ info?.courier_phone }}</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-slate-500">Observaciones</div>
+          <div class="font-medium whitespace-pre-line">{{ info?.observations || '—' }}</div>
+        </div>
       </div>
     </div>
 
-    <!-- Reject form -->
     <div class="rounded-2xl border bg-white shadow-sm p-4">
+      <div class="text-sm font-medium mb-3">Fechas relevantes</div>
+      <div class="grid md:grid-cols-2 gap-3 text-sm">
+        <div>
+          <div class="text-slate-500">Creada</div>
+          <div class="font-medium">{{ info?.created_at || '—' }}</div>
+        </div>
+        <div>
+          <div class="text-slate-500">Asignada</div>
+          <div class="font-medium">{{ info?.assignment_date || '—' }}</div>
+        </div>
+        <div>
+          <div class="text-slate-500">Recolectada</div>
+          <div class="font-medium">{{ info?.pickup_date || '—' }}</div>
+        </div>
+        <div>
+          <div class="text-slate-500">Entregada</div>
+          <div class="font-medium">{{ info?.delivery_date || '—' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border bg-white shadow-sm p-4">
+      <div class="text-sm font-medium mb-3">Historial de estados</div>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3" *ngFor="let s of (info?.status_history || [])">
+          <div class="h-2 w-2 mt-2 rounded-full bg-slate-400"></div>
+          <div class="flex-1">
+            <div class="font-medium">{{ s.status_name }}</div>
+            <div class="text-xs text-slate-500">
+              {{ s.changed_at || '—' }}<span *ngIf="s.changed_by"> · {{ s.changed_by }}</span>
+            </div>
+            <div class="text-xs text-slate-600" *ngIf="s.observations">{{ s.observations }}</div>
+          </div>
+        </div>
+        <div class="text-sm text-slate-500" *ngIf="(info?.status_history || []).length === 0">Sin eventos todavía.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border bg-white shadow-sm p-4" *ngIf="info?.can_reject; else rejectionDisabled">
       <div class="flex items-center justify-between mb-3">
         <div class="text-sm font-medium">¿Tuviste un problema con la entrega?</div>
       </div>
@@ -110,4 +148,11 @@
       </form>
     </div>
   </div>
+
+  <ng-template #rejectionDisabled>
+    <div class="rounded-2xl border bg-white shadow-sm p-4 text-sm text-slate-600">
+      <div class="font-medium text-slate-700">No es posible registrar un rechazo para esta guía.</div>
+      <p class="mt-1">Si necesitas ayuda adicional, comunícate con nuestro equipo de soporte.</p>
+    </div>
+  </ng-template>
 </section>

@@ -47,34 +47,22 @@ export class PublicTrackingPage {
 
     this.loading = true;
 
-    // 1) Intentar /search?guideNumber=...
-    this.api.search(trimmed).subscribe({
+    this.api.getOne(trimmed).subscribe({
       next: (data) => {
         this.info = data;
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (_) => {
-        // 2) Fallback a /{guideNumber} si /search no devuelve
-        this.api.getOne(trimmed).subscribe({
-          next: (data) => {
-            this.info = data;
-            this.loading = false;
-            this.cdr.detectChanges();
-          },
-          error: (err2) => {
-            this.loading = false;
-            this.errorMsg =
-              err2?.error?.message || err2?.message || 'No se encontró la guía.';
-            this.cdr.detectChanges();
-          },
-        });
+      error: (err) => {
+        this.loading = false;
+        this.errorMsg = err?.error?.message || err?.message || 'No se encontró la guía.';
+        this.cdr.detectChanges();
       },
     });
   }
 
   sendReject(): void {
-    if (!this.info?.guide_number) return;
+    if (!this.info?.guide_number || !this.info.can_reject) return;
 
     if (this.rejectForm.invalid) {
       this.rejectForm.markAllAsTouched();

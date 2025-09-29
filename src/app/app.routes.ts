@@ -25,13 +25,13 @@ export const routes: Routes = [
     children: [
       { path: '', component: LandingPage },
       { path: 'about', component: AboutPage },
+      {
+        path: 'tracking',
+        component: PublicTrackingPage,
+      },
     ],
   },
-  
-  {
-    path: 'tracking',
-    component: PublicTrackingPage,
-  },
+
   {
     path: 'admin', // administrador
     component: AdminLayout,
