@@ -1,15 +1,43 @@
 import { Routes } from '@angular/router';
-import { PrivateOpsLayout } from '../layouts/private-ops-layout/private-ops-layout';
-import { OpsProfilePage } from '../pages/ops/profile-page/profile-page';
-import { OpsHomePage } from '../pages/ops/ops-home-page/ops-home-page';
 
 export const OPS_ROUTES: Routes = [
   {
     path: '',
-    component: OpsHomePage,
+    pathMatch: 'full',
+    redirectTo: 'dashboard',
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('../pages/ops/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
   },
   {
     path: 'profile',
-    component: OpsProfilePage,
-  }
+    loadComponent: () =>
+      import('../pages/ops/profile-page/profile-page').then((m) => m.OpsProfilePage),
+  },
+  {
+    path: 'deliveries',
+    loadComponent: () =>
+      import('../pages/ops/deliveries-page/deliveries-page').then((m) => m.DeliveriesPage),
+  },
+  {
+    path: 'create-assignment',
+    loadComponent: () =>
+      import('../pages/ops/create-assignment-page/create-assignment-page').then(
+        (m) => m.CreateAssignmentPage
+      ),
+  },
+  {
+    path: 'incidents',
+    loadComponent: () =>
+      import('../pages/ops/incidents-page/incidents-page').then((m) => m.IncidentsPage),
+  },
+  {
+    path: 'create-incident',
+    loadComponent: () =>
+      import('../pages/ops/create-incident-page/create-incident-page').then(
+        (m) => m.CreateIncidentPage
+      ),
+  },
 ];

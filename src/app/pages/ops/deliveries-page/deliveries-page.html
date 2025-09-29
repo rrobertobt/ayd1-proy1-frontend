@@ -1,0 +1,291 @@
+<p-toast></p-toast>
+
+<div class="page-header">
+  <div class="">
+    <h1 class="text-3xl font-extrabold tracking-tight">Entregas</h1>
+    <p class="text-sm text-muted-color-emphasis">
+      Consulta y gestiona las guías asignadas a tu operación.
+    </p>
+  </div>
+  <div class="space-x-2">
+    <a
+      class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
+      routerLink="/ops/create-assignment"
+      type="button"
+    >
+      <span class="pi pi-plus"></span>
+      Nueva asignación
+    </a>
+    <button
+      type="button"
+      class="refresh-btn"
+      [disabled]="loading()"
+      (click)="refreshCurrent()"
+      class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-700 disabled:opacity-50"
+    >
+      <span class="pi pi-refresh"></span>
+      Actualizar
+    </button>
+  </div>
+</div>
+
+<section class="tabs">
+  @for (option of tabOptions; track option.key) {
+  <button
+    type="button"
+    class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-1 cursor-pointer"
+    [class.bg-rose-100]="currentTab() === option.key"
+    [class.text-rose-700]="currentTab() === option.key"
+    [class.border-rose-200]="currentTab() === option.key"
+    [class.bg-slate-100]="currentTab() !== option.key"
+    [class.text-slate-600]="currentTab() !== option.key"
+    [class.border-slate-200]="true"
+    [disabled]="loading() && currentTab() === option.key"
+    (click)="selectTab(option.key)"
+  >
+    <ng-icon name="{{ option.icon }}" class="tab-icon"></ng-icon>
+    {{ option.label }}
+  </button>
+  }
+</section>
+
+<section class="tab-description">
+  @for (option of tabOptions; track option.key) { @if (currentTab() === option.key) {
+  <p>{{ option.description }}</p>
+  } }
+</section>
+
+@if (errorMessage()) {
+<div class="feedback error">{{ errorMessage() }}</div>
+} @if (loading() && !deliveries().length) {
+<div class="feedback loading">Cargando entregas...</div>
+} @if (!loading() && !errorMessage() && !deliveries().length) {
+<div class="feedback empty">
+  <h2>No hay entregas para mostrar</h2>
+  <p>Cuando existan guías en esta categoría aparecerán listadas aquí.</p>
+</div>
+} @if (deliveries().length) {
+<div class="table-wrapper" [class.dimmed]="loading()">
+  <table>
+    <thead>
+      <tr>
+        <th>Guía</th>
+        <th>Estado</th>
+        <th>Courier</th>
+        <th>Negocio</th>
+        <th>Destinatario</th>
+        <th>Comisión</th>
+        <th>Asignada</th>
+        <th>Notas</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (delivery of deliveries(); track delivery.guide_id) {
+      <tr>
+        <td>
+          <span class="guide-number">{{ delivery.guide_number }}</span>
+          <small>Coordinador: {{ delivery.coordinator_name }}</small>
+        </td>
+        <td>
+          <span class="state">{{ delivery.current_state }}</span>
+          <small>{{ delivery.assignment_accepted ? 'Aceptada' : 'Por aceptar' }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.courier_name }}</span>
+          <small>ID {{ delivery.courier_id }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.business_name }}</span>
+          <small>{{ delivery.assignment_criteria ?? 'Sin criterio registrado' }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.recipient_name }}</span>
+          <small>{{ delivery.recipient_address }}</small>
+        </td>
+        <td>
+          <span>{{ delivery.courier_commission | currency : 'GTQ' : 'symbol' : '1.2-2' }}</span>
+          <small>Base {{ delivery.base_price | currency : 'GTQ' : 'symbol' : '1.2-2' }}</small>
+        </td>
+        <td>
+          <span>
+            {{
+              delivery.assignment_accepted_at
+                ? (delivery.assignment_accepted_at | date : 'dd/MM/yyyy HH:mm')
+                : '—'
+            }}
+          </span>
+          <small>{{
+            delivery.assigned_at
+              ? (delivery.assigned_at | date : 'dd/MM/yyyy HH:mm')
+              : 'Sin asignar'
+          }}</small>
+        </td>
+        <td>
+          <span class="observations">
+            {{ delivery.observations || 'Sin observaciones' }}
+          </span>
+        </td>
+        <td class="text-right">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-times"
+            label="Cancelar"
+            class="surface-button"
+            [disabled]="loading()"
+            (click)="openCancellationDialog(delivery)"
+          ></button>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="pagination-bar">
+    <span class="page-range">{{ pageRangeLabel() }}</span>
+    <div class="pagination-controls">
+      <label class="page-size">
+        Tamaño
+        <select [value]="pageSize()" (change)="onPageSizeChange($event)" [disabled]="loading()">
+          @for (size of pageSizeOptions; track size) {
+          <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-chevron-left"
+        label="Anterior"
+        class="page-btn"
+        (click)="goToPreviousPage()"
+        [disabled]="isFirstPage() || loading()"
+      ></button>
+      <span class="page-index">Página {{ pageIndex() + 1 }} de {{ totalPages() }}</span>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-chevron-right"
+        label="Siguiente"
+        class="page-btn"
+        (click)="goToNextPage()"
+        [disabled]="isLastPage() || loading()"
+      ></button>
+    </div>
+  </div>
+</div>
+}
+
+<p-dialog
+  header="Registrar cancelación"
+  [visible]="cancellationDialogVisible()"
+  [modal]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '36rem' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeCancellationDialog()"
+>
+  <ng-template pTemplate="content">
+    <div class="flex flex-col gap-4">
+      <p *ngIf="cancellationGuide()" class="text-sm text-slate-600">
+        Cancelación para la guía
+        <span class="font-semibold text-slate-800">{{ cancellationGuide()?.guide_number }}</span>
+        (ID {{ cancellationGuide()?.guide_id }})
+      </p>
+
+      <form [formGroup]="cancellationForm" class="flex flex-col gap-4" novalidate>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700" for="cancellationType">Tipo de cancelación</label>
+          <p-select
+            id="cancellationType"
+            formControlName="cancellation_type_id"
+            [options]="cancellationTypes()"
+            optionLabel="type_name"
+            optionValue="cancellation_type_id"
+            placeholder="Selecciona un motivo"
+            [loading]="cancellationTypes().length === 0"
+          ></p-select>
+          <small *ngIf="hasCancellationError('cancellation_type_id', 'required')" class="text-xs text-rose-500">
+            Debes seleccionar un tipo de cancelación.
+          </small>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <label class="flex items-center gap-2 text-sm text-slate-600">
+            <p-toggleSwitch formControlName="apply_penalty"></p-toggleSwitch>
+            Aplicar penalización
+          </label>
+          <label class="flex items-center gap-2 text-sm text-slate-600">
+            <p-toggleSwitch formControlName="notify_courier"></p-toggleSwitch>
+            Notificar al courier
+          </label>
+          <label class="flex items-center gap-2 text-sm text-slate-600">
+            <p-toggleSwitch formControlName="notify_customer"></p-toggleSwitch>
+            Notificar al cliente
+          </label>
+          <label class="flex items-center gap-2 text-sm text-slate-600">
+            <p-toggleSwitch formControlName="notify_business"></p-toggleSwitch>
+            Notificar al comercio
+          </label>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700" for="reason">Motivo</label>
+          <textarea
+            id="reason"
+            pTextarea
+            formControlName="reason"
+            rows="3"
+            placeholder="Describe el motivo de la cancelación"
+          ></textarea>
+          <small *ngIf="hasCancellationError('reason', 'required')" class="text-xs text-rose-500">
+            Debes ingresar un motivo.
+          </small>
+          <small *ngIf="hasCancellationError('reason', 'minlength')" class="text-xs text-rose-500">
+            El motivo debe tener al menos 10 caracteres.
+          </small>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700" for="notes">Notas adicionales</label>
+          <textarea
+            id="notes"
+            pTextarea
+            formControlName="notes"
+            rows="2"
+            placeholder="Información adicional para el registro (opcional)"
+          ></textarea>
+        </div>
+      </form>
+
+      @if (cancellationError()) {
+        <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-600">
+          {{ cancellationError() }}
+        </div>
+      }
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3">
+      <button
+        pButton
+        type="button"
+        label="Cerrar"
+        class="p-button-text"
+        (click)="closeCancellationDialog()"
+        [disabled]="submittingCancellation()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Registrar cancelación"
+        class="p-button-danger"
+        (click)="submitCancellation()"
+        [loading]="submittingCancellation()"
+        [disabled]="submittingCancellation()"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

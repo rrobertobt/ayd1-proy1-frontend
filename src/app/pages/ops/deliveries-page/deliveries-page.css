@@ -1,0 +1,234 @@
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color, #0f172a);
+}
+
+.page-header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.refresh-btn {
+  align-self: center;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tab-btn {
+  --button-bg: #f1f5f9;
+  background: var(--button-bg);
+  color: var(--text-color, #0f172a);
+  border-radius: 999px;
+  padding: 0.25rem 1.25rem;
+  font-weight: 600;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: var(--primary-color, #f43f5e);
+  color: #fff;
+}
+
+.tab-description {
+  margin-bottom: 1.25rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.feedback {
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid transparent;
+}
+
+.feedback.loading {
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.08);
+  color: #1d4ed8;
+}
+
+.feedback.error {
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+}
+
+.feedback.empty {
+  text-align: center;
+  border-color: rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.08);
+  color: #0369a1;
+}
+
+.feedback.empty h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.table-wrapper {
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  position: relative;
+}
+
+.pagination-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(248, 250, 252, 0.9);
+  border-top: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+.page-range {
+  font-size: 0.9rem;
+  color: var(--text-color-secondary, #64748b);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pagination-controls .page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.pagination-controls select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: #fff;
+}
+
+.pagination-controls .page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pagination-controls .page-index {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color, #0f172a);
+}
+
+.table-wrapper.dimmed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.65);
+  pointer-events: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+thead {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+th, td {
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-color-secondary, #6b7280);
+  font-weight: 700;
+}
+
+td span {
+  display: block;
+  font-weight: 600;
+  color: var(--text-color, #0f172a);
+}
+
+td small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-color-secondary, #6b7280);
+  font-size: 0.78rem;
+}
+
+.guide-number {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(236, 72, 153, 0.12);
+  color: #be185d;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.observations {
+  max-width: 22rem;
+  white-space: normal;
+}
+
+.surface-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(254, 226, 226, 0.55);
+  color: #b91c1c;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 900px;
+  }
+
+  .pagination-bar {
+    padding: 0.75rem 1rem;
+  }
+}

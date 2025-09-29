@@ -1,0 +1,166 @@
+<p-toast></p-toast>
+
+<section class="page-header">
+  <div>
+    <h1 class="text-3xl font-extrabold tracking-tight">Nueva asignación</h1>
+    <p class="text-sm text-muted-color-emphasis">Selecciona la guía y el courier para crear una nueva asignación.</p>
+  </div>
+  <button
+    pButton
+    type="button"
+    icon="pi pi-refresh"
+    label="Actualizar listas"
+    class="refresh-btn"
+    [loading]="isLoading()"
+    [disabled]="isLoading()"
+    (click)="loadOptions()"
+  ></button>
+</section>
+
+@if (loadError()) {
+<div class="feedback error">{{ loadError() }}</div>
+}
+
+<form class="assignment-form" [formGroup]="form" (ngSubmit)="submitAssignment()" novalidate>
+  <div class="grid">
+    <div class="field full">
+      <label for="guide">Guía a asignar</label>
+      <p-auto-complete
+        id="guide"
+        formControlName="guide_id"
+        [suggestions]="guideSuggestions"
+        (completeMethod)="searchGuides($event)"
+        optionValue="guide_id"
+        [dropdown]="true"
+        [disabled]="loadingGuides()"
+        placeholder="Busca por número de guía, comercio o destinatario"
+      >
+        <ng-template pTemplate="item" let-guide>
+          <div class="dropdown-item">
+            <span class="code">{{ guide.guide_number }}</span>
+            <small>{{ guide.business_name }} → {{ guide.recipient_name }}</small>
+          </div>
+        </ng-template>
+      </p-auto-complete>
+
+      <small *ngIf="hasError('guide_id', 'required')" class="error">Debes seleccionar una guía.</small>
+    </div>
+
+    <div class="field full">
+      <label for="courier">Courier</label>
+      <p-auto-complete
+        id="courier"
+        formControlName="courier_id"
+        [suggestions]="courierSuggestions"
+        (completeMethod)="searchCouriers($event)"
+        optionLabel="courier_name"
+        optionValue="courier_id"
+        [dropdown]="true"
+        [disabled]="loadingCouriers()"
+        placeholder="Selecciona un courier disponible"
+      >
+        <ng-template pTemplate="item" let-courier>
+          <div class="dropdown-item">
+            <span class="code">{{ courier.courier_name }}</span>
+            <small
+              >{{ courier.assigned_count }} asignadas ·
+              {{ courier.pending_count }} pendientes</small
+            >
+          </div>
+        </ng-template>
+      </p-auto-complete>
+      <small *ngIf="hasError('courier_id', 'required')" class="error"
+        >Debes seleccionar un courier.</small
+      >
+    </div>
+
+    <div class="field">
+      <label for="criteria">Criterio de asignación</label>
+      <!-- <p-auto-complete
+        id="criteria"
+        formControlName="assignment_criteria"
+        [suggestions]="assignmentCriteriaOptions"
+        optionLabel="label"
+        optionValue="value"
+      ></p-auto-complete> -->
+      <p-select
+        id="criteria"
+        formControlName="assignment_criteria"
+        [options]="assignmentCriteriaOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecciona un criterio"
+      ></p-select>
+    </div>
+
+    <div class="field">
+      <label for="priority">Prioridad</label>
+      <!-- <p-auto-complete
+        id="priority"
+        formControlName="priority"
+        [suggestions]="priorityOptions"
+        optionLabel="label"
+        optionValue="value"
+      ></p-auto-complete> -->
+      <p-select
+        id="priority"
+        formControlName="priority"
+        [options]="priorityOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecciona una prioridad"
+      ></p-select>
+    </div>
+
+    <div class="field">
+      <label for="estimatedHours">Horas estimadas</label>
+      <p-inputNumber
+        id="estimatedHours"
+        formControlName="estimated_hours"
+        mode="decimal"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="1"
+        [min]="0"
+        placeholder="0"
+      ></p-inputNumber>
+      <small *ngIf="hasError('estimated_hours', 'required')" class="error"
+        >Campo obligatorio.</small
+      >
+      <small *ngIf="hasError('estimated_hours', 'min')" class="error"
+        >Debe ser mayor o igual a 0.</small
+      >
+    </div>
+
+    <div class="field switch">
+      <label for="forceAssignment">Forzar asignación</label>
+      <p-toggle-switch id="forceAssignment" formControlName="force_assignment"></p-toggle-switch>
+      <small>Ignora validaciones automáticas para casos excepcionales.</small>
+    </div>
+
+    <div class="field full">
+      <label for="observations">Observaciones</label>
+      <textarea
+        pInputTextarea
+        id="observations"
+        formControlName="observations"
+        rows="4"
+        placeholder="Notas para el courier (opcional)"
+      ></textarea>
+    </div>
+  </div>
+
+  @if (submitError()) {
+  <div class="feedback error">{{ submitError() }}</div>
+  }
+
+  <div class="actions">
+    <button
+      pButton
+      type="submit"
+      label="Crear asignación"
+      class="submit-btn"
+      [loading]="submitting()"
+      [disabled]="submitting() || isLoading()"
+    ></button>
+  </div>
+</form>
