@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
 import { Router } from '@angular/router';
 import { UsersService } from '../users/users.service';
+import { RoleRef, CreateUserPayload } from '../users/user.types';
 import { ContractsService } from '../contracts/contracts.service';
-import { RoleRef } from '../users/user.model';
-import { ContractTypeRef } from '../contracts/contract.model';
+import { ContractTypeRef, Contract } from '../contracts/contract.model';
 
 @Component({
   standalone: true,
@@ -23,7 +23,8 @@ export class HireWizard {
     private fb: FormBuilder,
     private users: UsersService,
     private contracts: ContractsService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {
     this.userForm = this.fb.group({
       role_id: [3, Validators.required],
@@ -33,12 +34,13 @@ export class HireWizard {
       phone: [''],
       address: [''],
       national_id: [''],
-      active: [true],
       two_factor_enabled: [false],
+      active: [true],
+      temporary_password: ['', Validators.required],
     });
 
     this.contractForm = this.fb.group({
-      contract_type_id: [1, Validators.required],
+      contract_type_id: [null, Validators.required],
       base_salary: [0],
       commission_percentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
       start_date: ['', Validators.required],
@@ -46,25 +48,16 @@ export class HireWizard {
       observations: [''],
     });
 
-    this.users.listRoles().subscribe((r) => (this.roles = r));
-    this.contracts.listTypes().subscribe((t) => (this.types = t));
+    this.users.listRoles().subscribe(r => { this.roles = r; this.cdr.detectChanges(); });
+    this.contracts.listTypes().subscribe(t => { this.types = t; this.cdr.detectChanges(); });
   }
 
   next() {
-    if (this.step === 1 && this.userForm.invalid) {
-      this.userForm.markAllAsTouched();
-      return;
-    }
+    if (this.step === 1 && this.userForm.invalid) { this.userForm.markAllAsTouched(); return; }
     this.step = 2;
   }
-
-  back() {
-    if (this.step === 2) this.step = 1;
-  }
-
-  cancel() {
-    this.router.navigate(['/admin/users']);
-  }
+  back() { if (this.step === 2) this.step = 1; }
+  cancel() { this.router.navigate(['/admin/users']); }
 
   submit() {
     if (this.userForm.invalid || this.contractForm.invalid) {
@@ -72,16 +65,22 @@ export class HireWizard {
       this.contractForm.markAllAsTouched();
       return;
     }
-    this.users.create(this.userForm.getRawValue()).subscribe((newUser) => {
-      const payload = {
+
+    const userPayload = this.userForm.getRawValue() as CreateUserPayload;
+
+    this.users.create(userPayload).subscribe(newUser => {
+      const f = this.contractForm.getRawValue();
+      const payload: Contract = {
         user_id: newUser.user_id!,
-        admin_id: 1,
+        contract_type_id: f.contract_type_id,
+        base_salary: f.base_salary ?? 0,
+        commission_percentage: f.commission_percentage,
+        start_date: f.start_date,
+        end_date: f.end_date ?? null,
+        observations: f.observations ?? '',
         active: true,
-        ...this.contractForm.getRawValue(),
       };
-      this.contracts.create(payload).subscribe(() => {
-        this.router.navigate(['/admin/users']);
-      });
+      this.contracts.create(payload).subscribe(() => this.router.navigate(['/admin/users']));
     });
   }
 }

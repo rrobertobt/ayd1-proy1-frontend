@@ -26,15 +26,8 @@ import { TooltipModule } from 'primeng/tooltip';
             <a routerLink="loyalty" class="hover:text-indigo-600">Fidelización</a>
             <a routerLink="businesses" class="hover:text-indigo-600">Comercios</a>
             <a routerLink="audit" class="hover:text-indigo-600">Auditoría</a>
-            <a routerLink="config" class="hover:text-indigo-600">Config</a>
+            <a routerLink="reports" class="hover:text-indigo-600">Reportes</a>
 
-            <!-- CTA: Hiring wizard -->
-            <a
-              routerLink="hiring/new"
-              class="ml-2 px-3 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
-            >
-              Contratar
-            </a>
             <div class="space-x-4">
               <!-- <p-button variant="outlined" label="Inicia sesión"></p-button>
       <p-button label="Regístrate"></p-button> -->

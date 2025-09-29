@@ -1,62 +1,103 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { User, RoleRef } from './user.model';
-// import { HttpClient } from '@angular/common/http';
+import { Injectable, NgZone } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApiService } from '../../../core/http/api.service';
+import { CreateUserPayload, UpdateUserPayload, User, RoleRef } from './user.types';
+
+type UserListResponse =
+  | User[]
+  | { data: any[]; total?: number; page?: number; pageSize?: number }
+  | { content: any[]; totalElements?: number; totalPages?: number; number?: number; size?: number };
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
-  private readonly USE_API = false;
-  private readonly BASE_URL = '/api/users';
-  private readonly ROLES_URL = '/api/roles';
+  private readonly base = '/admin/users';
+  private readonly rolesBase = '/admin/roles';
 
-  private roles: RoleRef[] = [
-    { role_id: 1, role_name: 'Admin' },
-    { role_id: 2, role_name: 'Coordinador' },
-    { role_id: 3, role_name: 'Repartidor' },
-    { role_id: 4, role_name: 'Operaciones' },
-  ];
+  constructor(private api: ApiService, private zone: NgZone) {}
 
-  private data: User[] = [
-    { user_id: 1, role_id: 2, email: 'coord@sie.com', first_name: 'Ana', last_name: 'Gómez', phone: '2222-0001', address: 'Zona 10', national_id: '12345678', active: true, two_factor_enabled: true },
-    { user_id: 2, role_id: 3, email: 'r1@sie.com',     first_name: 'Luis', last_name: 'Pérez', phone: '5555-1000', address: 'Mixco',  national_id: '87654321', active: true, two_factor_enabled: false },
-    { user_id: 3, role_id: 3, email: 'r2@sie.com',     first_name: 'Marta', last_name: 'López', phone: '5555-2000', address: 'Villa Nueva', national_id: '55667788', active: true, two_factor_enabled: false },
-  ];
+  private toBool(v: any): boolean {
+    return v === true || v === 1 || v === '1' || v === 'true';
+  }
 
-  // constructor(private http: HttpClient) {}
+  private normalize(u: any): User {
+    return {
+      user_id: u.user_id ?? u.id,
+      role_id: u.role_id ?? u.roleId,
+      email: u.email,
+      first_name: u.first_name ?? u.firstName,
+      last_name: u.last_name ?? u.lastName,
+      phone: u.phone ?? null,
+      address: u.address ?? null,
+      national_id: u.national_id ?? u.nationalId ?? null,
+      two_factor_enabled: this.toBool(u.two_factor_enabled ?? u.twoFactorEnabled),
+      active: this.toBool(u.active),
+      created_at: u.created_at ?? u.createdAt,
+      updated_at: u.updated_at ?? u.updatedAt,
+    };
+  }
 
-  listRoles(): Observable<RoleRef[]> {
-    if (this.USE_API) { /* return this.http.get<RoleRef[]>(this.ROLES_URL); */ }
-    return of([...this.roles]).pipe(delay(100));
+  private wrapInZone<T>(obs: Observable<T>): Observable<T> {
+    return new Observable<T>((sub) => {
+      obs.subscribe({
+        next: (v) => this.zone.run(() => sub.next(v)),
+        error: (e) => this.zone.run(() => sub.error(e)),
+        complete: () => sub.complete(),
+      });
+    });
   }
 
   list(): Observable<User[]> {
-    if (this.USE_API) { /* return this.http.get<User[]>(this.BASE_URL); */ }
-    return of([...this.data]).pipe(delay(120));
+    return this.wrapInZone(
+      this.api.get<UserListResponse>(this.base).pipe(
+        map((res: any) => {
+          const arr = Array.isArray(res) ? res : (res?.data ?? res?.content ?? []);
+          return (arr as any[]).map((x) => this.normalize(x));
+        })
+      )
+    );
   }
 
-  get(id: number): Observable<User | undefined> {
-    if (this.USE_API) { /* return this.http.get<User>(`${this.BASE_URL}/${id}`); */ }
-    return of(this.data.find(x => x.user_id === id)).pipe(delay(100));
+  get(id: number): Observable<User> {
+    return this.wrapInZone(
+      this.api.get<any>(`${this.base}/${id}`).pipe(map((u) => this.normalize(u)))
+    );
   }
 
-  create(payload: User): Observable<User> {
-    if (this.USE_API) { /* return this.http.post<User>(this.BASE_URL, payload); */ }
-    const nextId = Math.max(0, ...this.data.map(x => x.user_id || 0)) + 1;
-    const created: User = { ...payload, user_id: nextId };
-    this.data = [...this.data, created];
-    return of(created).pipe(delay(120));
+  create(payload: CreateUserPayload): Observable<User> {
+    return this.wrapInZone(
+      this.api.post<any>(this.base, payload).pipe(map((u) => this.normalize(u)))
+    );
   }
 
-  update(payload: User): Observable<User> {
-    if (this.USE_API) { /* return this.http.put<User>(`${this.BASE_URL}/${payload.user_id}`, payload); */ }
-    this.data = this.data.map(x => (x.user_id === payload.user_id ? { ...x, ...payload } : x));
-    return of(payload).pipe(delay(120));
+  update(payload: UpdateUserPayload): Observable<User> {
+    if (!payload.user_id) throw new Error('user_id is required for update');
+    return this.wrapInZone(
+      this.api.put<any>(`${this.base}/${payload.user_id}`, payload).pipe(map((u) => this.normalize(u)))
+    );
+  }
+
+  setStatus(id: number, active: boolean): Observable<void> {
+    return this.wrapInZone(this.api.patch<void>(`${this.base}/${id}/status`, null, { active }));
   }
 
   remove(id: number): Observable<void> {
-    if (this.USE_API) { /* return this.http.delete<void>(`${this.BASE_URL}/${id}`); */ }
-    this.data = this.data.filter(x => x.user_id !== id);
-    return of(void 0).pipe(delay(100));
+    return this.wrapInZone(this.api.delete<void>(`${this.base}/${id}`));
+  }
+
+  listRoles(): Observable<RoleRef[]> {
+    return this.wrapInZone(
+      this.api.get<any>(this.rolesBase).pipe(
+        map((res: any) => {
+          const raw: any[] = Array.isArray(res)
+            ? res
+            : (res?.content as any[]) || (res?.data as any[]) || [];
+          return raw.map((r: any) => ({
+            role_id: r.role_id ?? r.roleId ?? r.id,
+            role_name: r.role_name ?? r.roleName ?? r.name,
+          })) as RoleRef[];
+        })
+      )
+    );
   }
 }

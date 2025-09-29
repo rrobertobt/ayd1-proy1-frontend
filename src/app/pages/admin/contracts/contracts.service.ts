@@ -1,121 +1,112 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Injectable, NgZone } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApiService } from '../../../core/http/api.service';
 import { Contract, ContractTypeRef } from './contract.model';
-// import { HttpClient } from '@angular/common/http';
+
+type ContractsListResponse = Contract[] | { content: any[] } | { data: any[] };
+type ContractTypesResponse = ContractTypeRef[] | { content: any[] } | { data: any[] };
 
 @Injectable({ providedIn: 'root' })
 export class ContractsService {
-  private readonly USE_API = false;
-  private readonly BASE_URL = '/api/contracts';
-  private readonly TYPES_URL = '/api/contract-types';
+  private readonly BASE = '/admin/contracts';
+  private readonly TYPES = '/admin/contract-types';
 
-  // Types seed (mirrors contract_types table)
-  private types: ContractTypeRef[] = [
-    { contract_type_id: 1, type_name: 'Tiempo completo' },
-    { contract_type_id: 2, type_name: 'Medio tiempo' },
-    { contract_type_id: 3, type_name: 'Por servicios' },
-  ];
+  constructor(private api: ApiService, private zone: NgZone) {}
 
-  // Contracts seed (mirrors contracts table)
-  private data: Contract[] = [
-    {
-      contract_id: 1,
-      user_id: 2,
-      admin_id: 1,
-      contract_type_id: 1,
-      base_salary: 0,
-      commission_percentage: 25,
-      start_date: '2024-01-01',
-      end_date: null,
-      active: true,
-      observations: 'Repartidor base',
-    },
-  ];
-
-  // constructor(private http: HttpClient) {}
-
-  // ---- Types ----
-  listTypes(): Observable<ContractTypeRef[]> {
-    if (this.USE_API) {
-      // return this.http.get<ContractTypeRef[]>(this.TYPES_URL);
-    }
-    return of([...this.types]).pipe(delay(100));
+  private toBool(v: any): boolean {
+    return v === true || v === 1 || v === '1' || v === 'true';
   }
 
-  // ---- Contracts (CRUD) ----
+  private normalize(c: any): Contract {
+    return {
+      contract_id: c.contract_id ?? c.contractId ?? c.id,
+      user_id: c.user_id ?? c.userId,
+      contract_type_id: c.contract_type_id ?? c.contractTypeId,
+      base_salary: c.base_salary ?? c.baseSalary ?? null,
+      commission_percentage: c.commission_percentage ?? c.commissionPercentage,
+      start_date: c.start_date ?? c.startDate,
+      end_date: c.end_date ?? c.endDate ?? null,
+      observations: c.observations ?? c.notes ?? null,
+      active: this.toBool(c.active),
+      created_at: c.created_at ?? c.createdAt,
+      updated_at: c.updated_at ?? c.updatedAt,
+    };
+  }
+
+  private normalizeType(x: any): ContractTypeRef {
+    return {
+      contract_type_id: x.contract_type_id ?? x.contractTypeId ?? x.id,
+      type_name: x.type_name ?? x.typeName ?? x.name,
+    };
+  }
+
+  private inZone<T>(obs: Observable<T>): Observable<T> {
+    return new Observable<T>((sub) => {
+      obs.subscribe({
+        next: (v) => this.zone.run(() => sub.next(v)),
+        error: (e) => this.zone.run(() => sub.error(e)),
+        complete: () => sub.complete(),
+      });
+    });
+  }
+
   list(): Observable<Contract[]> {
-    if (this.USE_API) {
-      // return this.http.get<Contract[]>(this.BASE_URL);
-    }
-    return of([...this.data]).pipe(delay(120));
+    return this.inZone(
+      this.api.get<ContractsListResponse>(this.BASE).pipe(
+        map((res: any) => {
+          const arr: any[] = Array.isArray(res) ? res : (res?.content ?? res?.data ?? []);
+          return arr.map((x) => this.normalize(x));
+        })
+      )
+    );
   }
 
-  get(id: number): Observable<Contract | undefined> {
-    if (this.USE_API) {
-      // return this.http.get<Contract>(`${this.BASE_URL}/${id}`);
-    }
-    return of(this.data.find(x => x.contract_id === id)).pipe(delay(100));
+  listByUser(userId: number): Observable<Contract[]> {
+    return this.list().pipe(map(rows => rows.filter(c => c.user_id === userId)));
+  }
+
+  get(id: number): Observable<Contract> {
+    return this.inZone(this.api.get<any>(`${this.BASE}/${id}`).pipe(map(x => this.normalize(x))));
   }
 
   create(payload: Contract): Observable<Contract> {
-    if (this.USE_API) {
-      // return this.http.post<Contract>(this.BASE_URL, payload);
-    }
-    const nextId = Math.max(0, ...this.data.map(x => x.contract_id || 0)) + 1;
-    const created: Contract = { ...payload, contract_id: nextId };
-    this.data = [...this.data, created];
-    return of(created).pipe(delay(120));
+    return this.inZone(this.api.post<any>(this.BASE, payload).pipe(map(x => this.normalize(x))));
   }
 
   update(payload: Contract): Observable<Contract> {
-    if (this.USE_API) {
-      // return this.http.put<Contract>(`${this.BASE_URL}/${payload.contract_id}`, payload);
-    }
-    this.data = this.data.map(x => (x.contract_id === payload.contract_id ? { ...x, ...payload } : x));
-    return of(payload).pipe(delay(120));
+    if (!payload.contract_id) throw new Error('contract_id is required');
+    return this.inZone(
+      this.api.put<any>(`${this.BASE}/${payload.contract_id}`, payload).pipe(map(x => this.normalize(x)))
+    );
+  }
+
+  setStatus(id: number, active: boolean): Observable<void> {
+    return this.inZone(this.api.patch<void>(`${this.BASE}/${id}/status`, null, { active }));
+  }
+
+  terminate(id: number, endDate: string): Observable<void> {
+    return this.inZone(this.api.patch<void>(`${this.BASE}/${id}/terminate`, { end_date: endDate }));
   }
 
   remove(id: number): Observable<void> {
-    if (this.USE_API) {
-      // return this.http.delete<void>(`${this.BASE_URL}/${id}`);
-    }
-    this.data = this.data.filter(x => x.contract_id !== id);
-    return of(void 0).pipe(delay(100));
+    return this.inZone(this.api.delete<void>(`${this.BASE}/${id}`));
   }
 
-  // ---- Extras for hiring flow ----
-
-  listByUser(userId: number): Observable<Contract[]> {
-    if (this.USE_API) {
-      // return this.http.get<Contract[]>(`${this.BASE_URL}?user_id=${userId}`);
-    }
-    return of(this.data.filter(x => x.user_id === userId)).pipe(delay(80));
-  }
-
-  renew(base: Contract, start: string): Observable<Contract> {
-    if (this.USE_API) {
-      // return this.http.post<Contract>(`${this.BASE_URL}/renew`, { ...base, start });
-    }
-    const nextId = Math.max(0, ...this.data.map(x => x.contract_id || 0)) + 1;
-    const copy: Contract = {
-      ...base,
-      contract_id: nextId,
-      start_date: start,
-      end_date: null,
-      active: true,
-    };
-    this.data = [...this.data, copy];
-    return of(copy).pipe(delay(100));
-  }
-
-  terminate(contractId: number, end: string): Observable<void> {
-    if (this.USE_API) {
-      // return this.http.post<void>(`${this.BASE_URL}/${contractId}/terminate`, { end });
-    }
-    this.data = this.data.map(c =>
-      c.contract_id === contractId ? { ...c, end_date: end, active: false } : c
+  listTypes(): Observable<ContractTypeRef[]> {
+    return this.inZone(
+      this.api.get<ContractTypesResponse>(this.Otypes).pipe(
+        map((res: any) => {
+          const arr: any[] = Array.isArray(res) ? res : (res?.content ?? res?.data ?? []);
+          return arr.map((x) => this.normalizeType(x));
+        })
+      )
     );
-    return of(void 0).pipe(delay(80));
+  }
+
+  private get Otypes() { return this.TYPES; }
+
+  getType(id: number): Observable<ContractTypeRef> {
+    return this.inZone(this.api.get<any>(`${this.TYPES}/${id}`).pipe(map(x => this.normalizeType(x))));
   }
 }

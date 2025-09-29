@@ -6,6 +6,24 @@
     <p class="text-sm text-slate-500 mt-1">Da de alta, edita o suspende comercios afiliados.</p>
   </header>
 
+  <!-- Inactive banner -->
+  <div *ngIf="isEdit && inactiveLocked" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+    <div class="flex items-start gap-3">
+      <div class="mt-0.5 h-5 w-5 rounded-full bg-amber-200"></div>
+      <div class="flex-1">
+        <p class="text-sm text-amber-900 font-semibold">Comercio desactivado.</p>
+        <p class="text-sm text-amber-800">No puedes editarlo hasta reactivarlo.</p>
+      </div>
+      <button
+        class="shrink-0 px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700
+               focus:outline-none focus:ring-4 focus:ring-indigo-100 transition"
+        (click)="activate()"
+        [disabled]="saving">
+        {{ saving ? 'Activando…' : 'Activar comercio' }}
+      </button>
+    </div>
+  </div>
+
   <div *ngIf="errorMsg" class="mb-4 p-3 rounded border border-red-200 bg-red-50 text-red-700 text-sm">
     {{ errorMsg }}
   </div>
@@ -66,8 +84,14 @@
       </div>
     </div>
 
-    <!-- Commerce -->
-    <div class="rounded-2xl border bg-white shadow-sm">
+    <!-- Commerce (lock look when inactive) -->
+    <div
+      class="rounded-2xl border bg-white shadow-sm transition"
+      [class.opacity-60]="inactiveLocked"
+      [class.pointer-events-none]="inactiveLocked"
+      [class.select-none]="inactiveLocked"
+      [class.backdrop-blur-[1px]]="inactiveLocked"
+    >
       <div class="p-6 grid gap-6 md:grid-cols-2">
 
         <div class="grid gap-2">
@@ -136,7 +160,7 @@
                  formControlName="affiliation_date">
         </div>
 
-        <div class="md:col-span-2">
+        <div class="md:col-span-2" *ngIf="!inactiveLocked">
           <label class="inline-flex items-center gap-2">
             <input type="checkbox" formControlName="active" class="h-4 w-4 accent-indigo-600">
             <span class="text-sm">Activo</span>
@@ -145,10 +169,16 @@
       </div>
     </div>
 
+    <div *ngIf="saveError" class="p-3 rounded border border-red-200 bg-red-50 text-red-700 text-sm">
+      {{ saveError }}
+    </div>
+
     <div class="flex flex-col sm:flex-row gap-3 justify-end">
-      <button class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer"
-              [disabled]="submitted && form.invalid">
-        {{ isEdit ? 'Guardar cambios' : 'Crear comercio' }}
+      <button
+        class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition
+               disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        [disabled]="saving || (submitted && form.invalid) || inactiveLocked">
+        {{ saving ? 'Guardando…' : (isEdit ? 'Guardar cambios' : 'Crear comercio') }}
       </button>
       <button type="button" class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50 cursor-pointer" (click)="back()">
         Cancelar

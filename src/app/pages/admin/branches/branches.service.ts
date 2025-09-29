@@ -1,4 +1,3 @@
-// src/app/pages/admin/branches/branches.service.ts
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -7,8 +6,8 @@ import { Branch } from './branch.model';
 
 type BranchListResponse =
   | Branch[]
-  | { data: Branch[]; total?: number; page?: number; pageSize?: number }
-  | { content: Branch[]; totalElements?: number; totalPages?: number; number?: number; size?: number };
+  | { data: any[]; total?: number; page?: number; pageSize?: number }
+  | { content: any[]; totalElements?: number; totalPages?: number; number?: number; size?: number };
 
 @Injectable({ providedIn: 'root' })
 export class BranchesService {
@@ -16,28 +15,46 @@ export class BranchesService {
 
   constructor(private api: ApiService) {}
 
+  private toBool(v: any): boolean {
+    return v === true || v === 1 || v === '1' || v === 'true';
+  }
+
+  private normalize(b: any): Branch {
+    return {
+      branch_id: b.branch_id,
+      branch_code: b.branch_code,
+      branch_name: b.branch_name,
+      address: b.address,
+      phone: b.phone ?? null,
+      email: b.email ?? null,
+      city: b.city ?? null,
+      state: b.state ?? null,
+      active: this.toBool(b.active),
+      created_at: b.created_at,
+      updated_at: b.updated_at,
+    };
+  }
+
   list(): Observable<Branch[]> {
     return this.api.get<BranchListResponse>(this.base).pipe(
       map((res: any) => {
-        if (Array.isArray(res)) return res;         
-        if (res?.data) return res.data as Branch[];  
-        if (res?.content) return res.content as Branch[]; 
-        return [];                                    
+        const arr = Array.isArray(res) ? res : (res?.data ?? res?.content ?? []);
+        return (arr as any[]).map(x => this.normalize(x));
       })
     );
   }
 
   get(id: number): Observable<Branch> {
-    return this.api.get<Branch>(`${this.base}/${id}`);
+    return this.api.get<any>(`${this.base}/${id}`).pipe(map(x => this.normalize(x)));
   }
 
   create(payload: Branch): Observable<Branch> {
-    return this.api.post<Branch>(this.base, payload);
+    return this.api.post<any>(this.base, payload).pipe(map(x => this.normalize(x)));
   }
 
   update(payload: Branch): Observable<Branch> {
     if (!payload.branch_id) throw new Error('branch_id is required for update');
-    return this.api.put<Branch>(`${this.base}/${payload.branch_id}`, payload);
+    return this.api.put<any>(`${this.base}/${payload.branch_id}`, payload).pipe(map(x => this.normalize(x)));
   }
 
   setStatus(id: number, active: boolean): Observable<void> {

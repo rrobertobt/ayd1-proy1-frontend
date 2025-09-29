@@ -16,35 +16,32 @@ export class LoyaltyList implements OnInit {
 
   constructor(private api: LoyaltyService, private cdr: ChangeDetectorRef) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void { this.fetch(); }
+
+  fetch(): void {
     this.loading = true;
+    this.errorMsg = '';
+    this.cdr.detectChanges();
+
     this.api.list().subscribe({
-      next: (rows) => {
+      next: rows => {
         this.items = rows;
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: err => {
         this.loading = false;
-        this.errorMsg = 'Failed to load loyalty levels.';
+        this.errorMsg = err?.message || 'No se pudieron cargar los niveles.';
+        this.cdr.detectChanges();
       },
     });
   }
 
-  toggleActive(l: LoyaltyLevel) {
-    this.api.update({ ...l, active: !l.active }).subscribe(val => {
-      const i = this.items.findIndex(x => x.level_id === val.level_id);
-      if (i > -1) this.items[i] = val;
-      this.items = [...this.items];
-      this.cdr.detectChanges();
-    });
-  }
-
-  delete(id?: number) {
-    if (!id) return;
-    this.api.remove(id).subscribe(() => {
-      this.items = this.items.filter(x => x.level_id !== id);
-      this.cdr.detectChanges();
+  toggleActive(l: LoyaltyLevel): void {
+    if (!l.level_id) return;
+    const next = !l.active;
+    this.api.setStatus(l.level_id, next).subscribe({
+      next: () => this.fetch(),
     });
   }
 }
