@@ -1,47 +1,114 @@
 <div class="login-container">
   <div class="login-card">
-    <h1>Iniciar sesión</h1>
-    <p class="subtitle">Ingresa tus credenciales para continuar</p>
+    @if (!twoFactorStep()) {
+      <h1>Iniciar sesión</h1>
+      <p class="subtitle">Ingresa tus credenciales para continuar</p>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
-      <div class="field">
-        <label for="email">Correo electrónico</label>
-        <input
-          id="email"
-          type="email"
-          pInputText
-          autocomplete="email"
-          formControlName="email"
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input
+            id="email"
+            type="email"
+            pInputText
+            autocomplete="email"
+            formControlName="email"
+            [disabled]="loading()"
+          />
+          <small *ngIf="hasError('email', 'required')" class="error">
+            El correo es obligatorio.
+          </small>
+          <small *ngIf="hasError('email', 'email')" class="error">Ingresa un correo válido.</small>
+        </div>
+
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            pInputText
+            autocomplete="current-password"
+            formControlName="password"
+            [disabled]="loading()"
+          />
+          <small *ngIf="hasError('password', 'required')" class="error">
+            La contraseña es obligatoria.
+          </small>
+          <small *ngIf="hasError('password', 'minlength')" class="error">
+            Debe tener al menos 6 caracteres.
+          </small>
+        </div>
+
+        <p *ngIf="errorMessage()" class="form-error">{{ errorMessage() }}</p>
+
+        <button
+          pButton
+          type="submit"
+          label="Ingresar"
+          class="submit-btn"
+          [loading]="loading()"
           [disabled]="loading()"
-        />
-        <small *ngIf="hasError('email', 'required')" class="error">El correo es obligatorio.</small>
-        <small *ngIf="hasError('email', 'email')" class="error">Ingresa un correo válido.</small>
-      </div>
+        ></button>
+      </form>
+    } @else {
+      <h1>Verificación 2FA</h1>
+      <p class="subtitle">
+        Ingresa el código enviado a <strong>{{ pendingEmail() }}</strong> para completar tu inicio de sesión.
+      </p>
 
-      <div class="field">
-        <label for="password">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          pInputText
-          autocomplete="current-password"
-          formControlName="password"
-          [disabled]="loading()"
-        />
-        <small *ngIf="hasError('password', 'required')" class="error">La contraseña es obligatoria.</small>
-        <small *ngIf="hasError('password', 'minlength')" class="error">Debe tener al menos 6 caracteres.</small>
-      </div>
+      <form [formGroup]="twoFactorForm" (ngSubmit)="submitTwoFactor()" novalidate>
+        <div class="field">
+          <label for="verificationCode">Código de verificación</label>
+          <input
+            id="verificationCode"
+            type="text"
+            pInputText
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            formControlName="verification_code"
+            [disabled]="verifyingTwoFactor()"
+          />
+          <small *ngIf="twoFactorHasError('required')" class="error">
+            Ingresa el código recibido.
+          </small>
+          <small *ngIf="twoFactorHasError('pattern')" class="error">
+            Debe contener 6 dígitos.
+          </small>
+        </div>
 
-      <p *ngIf="errorMessage()" class="form-error">{{ errorMessage() }}</p>
+        <p *ngIf="twoFactorInfo()" class="form-info">{{ twoFactorInfo() }}</p>
+        <p *ngIf="twoFactorError()" class="form-error">{{ twoFactorError() }}</p>
 
-      <button
-        pButton
-        type="submit"
-        label="Ingresar"
-        class="submit-btn"
-        [loading]="loading()"
-        [disabled]="loading()"
-      ></button>
-    </form>
+        <div class="actions">
+          <button
+            pButton
+            type="submit"
+            label="Verificar código"
+            class="submit-btn"
+            [loading]="verifyingTwoFactor()"
+            [disabled]="verifyingTwoFactor()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            label="Reenviar código"
+            severity="secondary"
+            class="secondary-btn"
+            [loading]="resendingCode()"
+            [disabled]="resendingCode()"
+            (click)="resendTwoFactorCode()"
+          ></button>
+        </div>
+
+        <button
+          pButton
+          type="button"
+          label="Ingresar con otro correo"
+          class="link-btn"
+          (click)="restartLogin()"
+        ></button>
+      </form>
+    }
   </div>
 </div>

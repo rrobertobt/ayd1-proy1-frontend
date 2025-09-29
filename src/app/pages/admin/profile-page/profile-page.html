@@ -1,0 +1,283 @@
+<p-toast />
+<div class="pb-6 space-y-2">
+  <h1 class="text-3xl font-extrabold tracking-tight">Mi perfil</h1>
+  <p>Visualiza y actualiza la información de tu perfil.</p>
+</div>
+<div class="space-y-6">
+  <section class="rounded-2xl border bg-white shadow-sm">
+    <h2 class="px-6 pt-6 text-xl font-extrabold">Información de perfil</h2>
+    <div class="p-6 grid gap-6 grid-cols-1 md:grid-cols-2">
+      <p-iftalabel>
+        <input pInputText id="email" readonly [value]="authService.user()?.email" fluid />
+        <label for="email">Correo eléctronico</label>
+      </p-iftalabel>
+      <p-iftalabel>
+        <input pInputText id="firstName" readonly [value]="authService.user()?.first_name" fluid />
+        <label for="firstName">Nombre</label>
+      </p-iftalabel>
+      <p-iftalabel>
+        <input pInputText id="lastName" readonly [value]="authService.user()?.last_name" fluid />
+        <label for="lastName">Apellido</label>
+      </p-iftalabel>
+      <p-iftalabel>
+        <input pInputText id="phone" readonly [value]="authService.user()?.phone" fluid />
+        <label for="phone">Teléfono</label>
+      </p-iftalabel>
+      <p-iftalabel>
+        <input pInputText id="lastLogin" readonly [value]="authService.user()?.last_login" fluid />
+        <label for="lastLogin">Último inicio de sesión</label>
+      </p-iftalabel>
+    </div>
+  </section>
+  <section class="rounded-2xl border bg-white shadow-sm">
+    <h2 class="px-6 pt-6 text-xl font-extrabold">Seguridad</h2>
+    <div class="p-6 space-y-10">
+      <form
+        class="grid gap-6 grid-cols-1 md:grid-cols-2"
+        [formGroup]="changePasswordForm"
+        (ngSubmit)="submitChangePassword()"
+        novalidate
+      >
+        <p class="md:col-span-2 text-sm text-slate-500">
+          Actualiza tu contraseña con regularidad para mantener tu cuenta segura.
+        </p>
+
+        <p-iftalabel>
+          <input
+            pInputText
+            id="currentPassword"
+            type="password"
+            autocomplete="current-password"
+            formControlName="current_password"
+            [disabled]="submitting()"
+            fluid
+          />
+          <label for="currentPassword">Contraseña actual</label>
+          <small
+            *ngIf="controlHasError('current_password', 'required')"
+            class="text-sm text-red-500"
+          >
+            Debes ingresar tu contraseña actual.
+          </small>
+        </p-iftalabel>
+
+        <p-iftalabel>
+          <input
+            pInputText
+            id="newPassword"
+            type="password"
+            autocomplete="new-password"
+            formControlName="new_password"
+            [disabled]="submitting()"
+            fluid
+          />
+          <label for="newPassword">Nueva contraseña</label>
+          <small *ngIf="controlHasError('new_password', 'required')" class="text-sm text-red-500">
+            La nueva contraseña es obligatoria.
+          </small>
+          <small *ngIf="controlHasError('new_password', 'minlength')" class="text-sm text-red-500">
+            Debe contener al menos 8 caracteres.
+          </small>
+        </p-iftalabel>
+
+        <p-iftalabel>
+          <input
+            pInputText
+            id="confirmPassword"
+            type="password"
+            autocomplete="new-password"
+            formControlName="confirm_password"
+            [disabled]="submitting()"
+            fluid
+          />
+          <label for="confirmPassword">Confirmar nueva contraseña</label>
+          <small
+            *ngIf="controlHasError('confirm_password', 'required')"
+            class="text-sm text-red-500"
+          >
+            Confirma tu nueva contraseña.
+          </small>
+          <small *ngIf="shouldShowPasswordMismatch()" class="text-sm text-red-500">
+            Las contraseñas no coinciden.
+          </small>
+        </p-iftalabel>
+
+        <div class="md:col-span-2 flex justify-end">
+          <button
+            pButton
+            type="submit"
+            label="Actualizar contraseña"
+            class="px-6"
+            [loading]="submitting()"
+            [disabled]="submitting()"
+          ></button>
+        </div>
+      </form>
+
+      <div class="border-t border-slate-200"></div>
+
+      <section class="space-y-6">
+        <header class="space-y-2">
+          <h3 class="text-lg font-semibold">Autenticación de dos factores</h3>
+          <p class="text-sm text-slate-500">
+            Refuerza tu cuenta solicitando un código adicional al iniciar sesión.
+          </p>
+          <p
+            class="text-xs font-medium"
+            [class.text-emerald-600]="isTwoFactorEnabled"
+            [class.text-slate-500]="!isTwoFactorEnabled"
+          >
+            Estado: {{ isTwoFactorEnabled ? 'Activada' : 'Desactivada' }}
+          </p>
+        </header>
+
+        <ng-container *ngIf="!isTwoFactorEnabled; else disableTwoFactorBlock">
+          <form
+            class="grid gap-4 max-w-md"
+            [formGroup]="enableTwoFactorForm"
+            (ngSubmit)="submitEnableTwoFactor()"
+            novalidate
+          >
+            <p class="text-sm text-slate-500">
+              Confirma tu contraseña para activar la verificación en dos pasos.
+            </p>
+
+            <p-iftalabel>
+              <input
+                pInputText
+                id="twoFactorPassword"
+                type="password"
+                autocomplete="current-password"
+                formControlName="password"
+                [disabled]="enablingTwoFactor()"
+                fluid
+              />
+              <label for="twoFactorPassword">Contraseña</label>
+              <small
+                *ngIf="enableTwoFactorControlHasError('required')"
+                class="text-sm text-red-500"
+              >
+                Ingresa tu contraseña para continuar.
+              </small>
+            </p-iftalabel>
+
+            <div class="flex justify-end">
+              <button
+                pButton
+                type="submit"
+                label="Activar 2FA"
+                class="px-5"
+                [loading]="enablingTwoFactor()"
+                [disabled]="enablingTwoFactor()"
+              ></button>
+            </div>
+          </form>
+        </ng-container>
+
+        <ng-template #disableTwoFactorBlock>
+          <div class="space-y-8">
+            <form
+              class="grid gap-4 max-w-md"
+              [formGroup]="disableTwoFactorRequestForm"
+              (ngSubmit)="submitDisableTwoFactorRequest()"
+              novalidate
+            >
+              <p class="text-sm text-slate-500">
+                Para desactivar la autenticación de dos factores confirma tu contraseña y solicita
+                el código de verificación enviado a tu correo.
+              </p>
+
+              <p-iftalabel>
+                <input
+                  pInputText
+                  id="disableTwoFactorPassword"
+                  type="password"
+                  autocomplete="current-password"
+                  formControlName="password"
+                  [disabled]="requestingDisableTwoFactor()"
+                  fluid
+                />
+                <label for="disableTwoFactorPassword">Contraseña</label>
+                <small
+                  *ngIf="disableTwoFactorRequestControlHasError('required')"
+                  class="text-sm text-red-500"
+                >
+                  Ingresa tu contraseña para solicitar el código.
+                </small>
+              </p-iftalabel>
+
+              <div class="flex justify-end">
+                <button
+                  pButton
+                  type="submit"
+                  label="Solicitar código"
+                  class="px-5"
+                  [loading]="requestingDisableTwoFactor()"
+                  [disabled]="requestingDisableTwoFactor()"
+                ></button>
+              </div>
+            </form>
+
+            <form
+              class="grid gap-4 max-w-md"
+              [formGroup]="disableTwoFactorConfirmForm"
+              (ngSubmit)="submitDisableTwoFactorConfirm()"
+              novalidate
+            >
+              <p class="text-sm text-slate-500">
+                Ingresa el código de verificación que recibiste por correo electrónico.
+              </p>
+
+              <p-iftalabel>
+                <input
+                  pInputText
+                  id="verificationCode"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="6"
+                  formControlName="verification_code"
+                  [disabled]="confirmingDisableTwoFactor() || !disableCodeSent()"
+                  fluid
+                />
+                <label for="verificationCode">Código de verificación</label>
+                <small
+                  *ngIf="disableTwoFactorConfirmControlHasError('required')"
+                  class="text-sm text-red-500"
+                >
+                  Ingresa el código recibido.
+                </small>
+                <small
+                  *ngIf="disableTwoFactorConfirmControlHasError('pattern')"
+                  class="text-sm text-red-500"
+                >
+                  El código debe tener 6 dígitos.
+                </small>
+              </p-iftalabel>
+
+              <div class="flex items-center justify-between text-sm">
+                <span
+                  *ngIf="disableCodeSent(); else requestCodeHint"
+                  class="text-emerald-600"
+                >
+                  Código enviado. Revisa tu inbox.
+                </span>
+                <ng-template #requestCodeHint>
+                  <span class="text-slate-500">Solicita el código para continuar.</span>
+                </ng-template>
+
+                <button
+                  pButton
+                  type="submit"
+                  label="Confirmar desactivación"
+                  class="px-5"
+                  [loading]="confirmingDisableTwoFactor()"
+                  [disabled]="confirmingDisableTwoFactor() || !disableCodeSent()"
+                ></button>
+              </div>
+            </form>
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </section>
+</div>
