@@ -6,6 +6,24 @@
     <p class="text-sm text-slate-500 mt-1">Administra el registro y actualización de sucursales.</p>
   </header>
 
+  <!-- Inactive banner -->
+  <div *ngIf="isEdit && inactiveLocked" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+    <div class="flex items-start gap-3">
+      <div class="mt-0.5 h-5 w-5 rounded-full bg-amber-200"></div>
+      <div class="flex-1">
+        <p class="text-sm text-amber-900 font-medium">Sucursal desactivada.</p>
+        <p class="text-sm text-amber-800">No puedes editarla hasta reactivarla.</p>
+      </div>
+      <button
+        class="shrink-0 px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700
+               focus:outline-none focus:ring-4 focus:ring-indigo-100 transition"
+        (click)="activate()"
+        [disabled]="saving">
+        {{ saving ? 'Activando…' : 'Activar sucursal' }}
+      </button>
+    </div>
+  </div>
+
   <div *ngIf="errorMsg" class="mb-4 p-3 rounded border border-red-200 bg-red-50 text-red-700 text-sm">
     {{ errorMsg }}
   </div>
@@ -18,7 +36,13 @@
   </div>
 
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
-    <div class="rounded-2xl border bg-white shadow-sm">
+    <div
+      class="rounded-2xl border bg-white shadow-sm transition"
+      [class.opacity-60]="inactiveLocked"
+      [class.pointer-events-none]="inactiveLocked"
+      [class.select-none]="inactiveLocked"
+      [class.backdrop-blur-[1px]]="inactiveLocked"
+    >
       <div class="p-6 grid gap-6 md:grid-cols-2">
 
         <!-- Código -->
@@ -28,7 +52,7 @@
             class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
                    placeholder-slate-400 text-slate-800 outline-none
                    focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
-                   read-only:bg-slate-50"
+                   read-only:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-50"
             formControlName="branch_code"
             placeholder="Ej: SUC001"
             [readonly]="isEdit">
@@ -41,7 +65,8 @@
           <input
             class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
                    placeholder-slate-400 text-slate-800 outline-none
-                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
+                   disabled:cursor-not-allowed disabled:bg-slate-50"
             formControlName="branch_name"
             placeholder="Sucursal Central">
           <span class="text-xs text-red-600" *ngIf="submitted && form.controls['branch_name'].invalid">Requerido</span>
@@ -53,7 +78,8 @@
           <input
             class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
                    placeholder-slate-400 text-slate-800 outline-none
-                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
+                   disabled:cursor-not-allowed disabled:bg-slate-50"
             formControlName="phone"
             placeholder="+502 2222-0000">
         </div>
@@ -65,7 +91,8 @@
             type="email"
             class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
                    placeholder-slate-400 text-slate-800 outline-none
-                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
+                   disabled:cursor-not-allowed disabled:bg-slate-50"
             formControlName="email"
             placeholder="sucursal@empresa.com">
           <span class="text-xs text-red-600" *ngIf="submitted && form.controls['email'].invalid">Email inválido</span>
@@ -77,7 +104,8 @@
           <input
             class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
                    placeholder-slate-400 text-slate-800 outline-none
-                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
+                   disabled:cursor-not-allowed disabled:bg-slate-50"
             formControlName="city"
             placeholder="Guatemala">
         </div>
@@ -88,7 +116,8 @@
           <input
             class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
                    placeholder-slate-400 text-slate-800 outline-none
-                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
+                   disabled:cursor-not-allowed disabled:bg-slate-50"
             formControlName="state"
             placeholder="Guatemala">
         </div>
@@ -99,14 +128,15 @@
           <textarea
             class="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white
                    placeholder-slate-400 text-slate-800 min-h-[100px] outline-none
-                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                   focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition
+                   disabled:cursor-not-allowed disabled:bg-slate-50"
             formControlName="address"
             placeholder="Dirección completa"></textarea>
           <span class="text-xs text-red-600" *ngIf="submitted && form.controls['address'].invalid">Requerido</span>
         </div>
 
-        <!-- Activo -->
-        <div class="md:col-span-2">
+        <!-- Activo (solo visual cuando no está bloqueado) -->
+        <div class="md:col-span-2" *ngIf="!inactiveLocked">
           <label class="inline-flex items-center gap-2">
             <input type="checkbox" formControlName="active" class="h-4 w-4 accent-indigo-600">
             <span class="text-sm">Activo</span>
@@ -121,11 +151,14 @@
 
     <div class="flex flex-col sm:flex-row gap-3 justify-end">
       <button
-        class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer"
-        [disabled]="saving || (submitted && form.invalid)">
+        class="px-5 py-2.5 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition
+               disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="saving || (submitted && form.invalid) || inactiveLocked">
         {{ saving ? 'Guardando…' : (isEdit ? 'Guardar cambios' : 'Crear sucursal') }}
       </button>
-      <button type="button" class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50 cursor-pointer" (click)="back()">
+      <button type="button"
+        class="px-5 py-2.5 rounded-md border font-medium hover:bg-slate-50"
+        (click)="back()">
         Cancelar
       </button>
     </div>

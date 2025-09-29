@@ -1,12 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIf } from '@angular/common';
-import { BranchesService } from './branches.service';
-import { Branch } from './branch.model';
-import { ChangeDetectorRef } from '@angular/core';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { BranchesService } from './branches.service';
+import { Branch } from './branch.model';
 
 @Component({
   standalone: true,
@@ -22,8 +21,8 @@ export class BranchForm implements OnInit, OnDestroy {
   saving = false;
   saveError = '';
 
+  inactiveLocked = false;
   form!: FormGroup;
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -47,13 +46,14 @@ export class BranchForm implements OnInit, OnDestroy {
       active: [true],
     });
 
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((pm) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(pm => {
       const id = pm.get('id');
       this.isEdit = !!id;
-
       this.errorMsg = '';
+
       if (!this.isEdit) {
-        this.loading = false;
+        this.inactiveLocked = false;
+        this.form.enable();
         this.form.reset({
           branch_id: null,
           branch_code: '',
@@ -72,18 +72,19 @@ export class BranchForm implements OnInit, OnDestroy {
       this.loading = true;
       this.cdr.detectChanges();
 
-      this.api
-        .get(Number(id))
+      this.api.get(Number(id))
         .pipe(
-          finalize(() => {
-            this.loading = false;
-            this.cdr.detectChanges();
-          }),
+          finalize(() => { this.loading = false; this.cdr.detectChanges(); }),
           takeUntil(this.destroy$)
         )
         .subscribe({
-          next: (b) => {
-            this.form.patchValue(b);
+          next: (b: Branch) => {
+            const activeBool = b.active === true;
+            this.form.patchValue({ ...b, active: activeBool });
+            this.form.get('branch_code')?.disable();
+            this.inactiveLocked = !activeBool;
+            if (this.inactiveLocked) this.form.disable();
+            else this.form.enable(), this.form.get('branch_code')?.disable();
             this.cdr.detectChanges();
           },
           error: (err) => {
@@ -94,24 +95,47 @@ export class BranchForm implements OnInit, OnDestroy {
     });
   }
 
+  activate(): void {
+    const id = this.form.get('branch_id')?.value as number | null;
+    if (!id) return;
+
+    this.saving = true;
+    this.cdr.detectChanges();
+
+    this.api.setStatus(id, true)
+      .pipe(
+        finalize(() => { this.saving = false; this.cdr.detectChanges(); }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: () => {
+          this.inactiveLocked = false;
+          this.form.enable();
+          this.form.get('branch_code')?.disable();
+          this.form.get('active')?.setValue(true);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.saveError = err?.error?.message || err?.message || 'No se pudo activar la sucursal';
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.saveError = '';
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.inactiveLocked) return;
 
     this.saving = true;
     this.cdr.detectChanges();
 
     const payload: Branch = { ...this.form.getRawValue() };
-
     const op$ = this.isEdit ? this.api.update(payload) : this.api.create(payload);
 
     op$
       .pipe(
-        finalize(() => {
-          this.saving = false;
-          this.cdr.detectChanges();
-        }),
+        finalize(() => { this.saving = false; this.cdr.detectChanges(); }),
         takeUntil(this.destroy$)
       )
       .subscribe({

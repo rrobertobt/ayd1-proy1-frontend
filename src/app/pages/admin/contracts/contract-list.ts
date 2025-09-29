@@ -3,6 +3,9 @@ import { RouterLink } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 import { ContractsService } from './contracts.service';
 import { Contract, ContractTypeRef } from './contract.model';
+import { ConfirmService } from '../../../shared/confirm/confirm.service';
+import { UsersService } from '../users/users.service';
+import { User } from '../users/user.types';
 
 @Component({
   standalone: true,
@@ -14,22 +17,66 @@ export class ContractList implements OnInit {
   errorMsg = '';
   items: Contract[] = [];
   types = new Map<number, string>();
+  userNames = new Map<number, string>();
 
-  constructor(private api: ContractsService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private api: ContractsService,
+    private users: UsersService,
+    private cdr: ChangeDetectorRef,
+    private confirm: ConfirmService
+  ) {}
 
   ngOnInit(): void {
     this.loading = true;
-    this.api.listTypes().subscribe(t => this.types = new Map(t.map(x => [x.contract_type_id, x.type_name])));
+
+    this.api.listTypes().subscribe({
+      next: (t: ContractTypeRef[]) => {
+        this.types = new Map(t.map(x => [x.contract_type_id, x.type_name]));
+        this.cdr.detectChanges();
+      },
+      error: () => {},
+    });
+
     this.api.list().subscribe({
-      next: rows => { this.items = rows; this.loading = false; this.cdr.detectChanges(); },
-      error: () => { this.loading = false; this.errorMsg = 'Failed to load contracts.'; }
+      next: rows => {
+        this.items = rows;
+        this.loading = false;
+
+        // Load users and cache names for display
+        this.users.list().subscribe({
+          next: (us: User[]) => {
+            for (const u of us) if (u.user_id) this.userNames.set(u.user_id, `${u.first_name} ${u.last_name}`.trim());
+            this.cdr.detectChanges();
+          },
+          error: () => {},
+        });
+
+        this.cdr.detectChanges();
+      },
+      error: err => {
+        this.loading = false;
+        this.errorMsg = err?.error?.message || err?.message || 'Failed to load contracts.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
   typeName(id: number) { return this.types.get(id) || '-'; }
+  userName(id: number) { return this.userNames.get(id) || '-'; }
 
-  delete(id?: number) {
+  async delete(id?: number) {
     if (!id) return;
-    this.api.remove(id).subscribe(() => { this.items = this.items.filter(x => x.contract_id !== id); this.cdr.detectChanges(); });
+    const ok = await this.confirm.open({
+      title: 'Eliminar contrato',
+      message: 'Esta acción no se puede deshacer. ¿Seguro que deseas continuar?',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      danger: true,
+    });
+    if (!ok) return;
+
+    this.api.remove(id).subscribe({
+      next: () => { this.items = this.items.filter(x => x.contract_id !== id); this.cdr.detectChanges(); },
+    });
   }
 }

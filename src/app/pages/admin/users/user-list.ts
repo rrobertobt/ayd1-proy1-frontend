@@ -2,7 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 import { UsersService } from './users.service';
-import { User, RoleRef } from './user.model';
+import { User, RoleRef } from './user.types';
+import { ConfirmService } from '../../../shared/confirm/confirm.service';
 
 @Component({
   standalone: true,
@@ -15,32 +16,63 @@ export class UserList implements OnInit {
   items: User[] = [];
   roles = new Map<number, string>();
 
-  constructor(private api: UsersService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private api: UsersService,
+    private cdr: ChangeDetectorRef,
+    private confirm: ConfirmService 
+  ) {}
 
   ngOnInit(): void {
     this.loading = true;
-    this.api.listRoles().subscribe(rs => this.roles = new Map(rs.map(r => [r.role_id, r.role_name])));
+    this.api.listRoles().subscribe(r => {
+      this.roles = new Map(r.map(x => [x.role_id, x.role_name]));
+      this.cdr.detectChanges();
+    });
+    this.fetch();
+  }
+
+  fetch(): void {
+    this.loading = true;
     this.api.list().subscribe({
-      next: rows => { this.items = rows; this.loading = false; this.cdr.detectChanges(); },
-      error: () => { this.loading = false; this.errorMsg = 'Failed to load users.'; }
+      next: rows => {
+        this.items = rows;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMsg = 'Failed to load users.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  roleName(id: number) { return this.roles.get(id) || '-'; }
+  roleName(id: number) {
+    return this.roles.get(id) || '-';
+  }
 
   toggleActive(u: User) {
-    this.api.update({ ...u, active: !u.active }).subscribe(val => {
-      const i = this.items.findIndex(x => x.user_id === val.user_id);
-      if (i > -1) this.items[i] = val;
-      this.items = [...this.items]; this.cdr.detectChanges();
-    });
-  }
+  if (!u.user_id) return;
+  const next = !u.active;
+  this.api.setStatus(u.user_id, next).subscribe({
+    next: () => this.fetch(),
+  });
+}
 
-  delete(id?: number) {
+
+  async delete(id?: number): Promise<void> {
     if (!id) return;
-    this.api.remove(id).subscribe(() => {
-      this.items = this.items.filter(x => x.user_id !== id);
-      this.cdr.detectChanges();
+    const ok = await this.confirm.open({
+      title: 'Eliminar usuario',
+      message: 'Esta acción no se puede deshacer. ¿Seguro que deseas continuar?',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      danger: true,
+    });
+    if (!ok) return;
+
+    this.api.remove(id).subscribe({
+      next: () => this.fetch(),
     });
   }
 }

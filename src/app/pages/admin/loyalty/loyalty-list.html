@@ -1,12 +1,7 @@
-<!-- Header -->
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-xl font-bold">Reglas de fidelización</h1>
-  <a routerLink="/admin/loyalty/new" class="px-3 py-2 text-sm rounded bg-indigo-600 text-white">
-    Nuevo nivel
-  </a>
 </div>
 
-<!-- Loading -->
 <div class="rounded border bg-white" *ngIf="loading">
   <div class="p-4">
     <div class="animate-pulse space-y-3">
@@ -16,12 +11,10 @@
   </div>
 </div>
 
-<!-- Error -->
 <div *ngIf="!loading && errorMsg" class="p-3 rounded border border-red-200 bg-red-50 text-red-700 text-sm">
   {{ errorMsg }}
 </div>
 
-<!-- Table -->
 <div class="rounded border bg-white overflow-x-auto" *ngIf="!loading && !errorMsg">
   <table class="min-w-full text-sm">
     <thead class="bg-slate-100 text-slate-600">
@@ -53,7 +46,6 @@
         </td>
         <td class="p-3 text-right space-x-2">
           <a class="text-indigo-600 hover:underline" [routerLink]="['/admin/loyalty', l.level_id]">Editar</a>
-          <button class="text-red-600 hover:underline" (click)="delete(l.level_id)">Eliminar</button>
         </td>
       </tr>
       <tr *ngIf="items.length === 0">

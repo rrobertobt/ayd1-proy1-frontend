@@ -90,4 +90,7 @@ export const ADMIN_ROUTES: Routes = [
     path: 'profile',
     loadComponent: () => import('./profile-page/profile-page').then((m) => m.AdminProfilePage),
   },
+
+  // Reportes
+  { path: 'reports', loadComponent: () => import('./reports/reports-page').then(m => m.ReportsPage) },
 ];

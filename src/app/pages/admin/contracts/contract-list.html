@@ -1,16 +1,11 @@
-<!-- Header -->
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-xl font-bold">Contratos</h1>
   <div class="flex gap-2">
     <a routerLink="/admin/hiring/new" class="px-3 py-2 text-sm rounded border">Nuevo ingreso</a>
-    <a routerLink="/admin/contracts/new" class="px-3 py-2 text-sm rounded bg-indigo-600 text-white">
-      Nuevo contrato
-    </a>
+    <a routerLink="/admin/contracts/new" class="px-3 py-2 text-sm rounded bg-indigo-600 text-white">Nuevo contrato</a>
   </div>
 </div>
 
-
-<!-- Loading/Error/Table -->
 <div class="rounded border bg-white" *ngIf="loading">
   <div class="p-4">
     <div class="animate-pulse space-y-3">
@@ -28,7 +23,7 @@
   <table class="min-w-full text-sm">
     <thead class="bg-slate-100 text-slate-600">
       <tr>
-        <th class="text-left p-3">Empleado (user_id)</th>
+        <th class="text-left p-3">Empleado</th>
         <th class="text-left p-3">Tipo</th>
         <th class="text-left p-3">% Comisión</th>
         <th class="text-left p-3">Inicio</th>
@@ -39,13 +34,18 @@
     </thead>
     <tbody>
       <tr *ngFor="let c of items" class="border-t">
-        <td class="p-3">{{ c.user_id }}</td>
+        <td class="p-3">
+          {{ userName(c.user_id) }}
+          <span class="text-slate-400">({{ c.user_id }})</span>
+        </td>
         <td class="p-3">{{ typeName(c.contract_type_id) }}</td>
         <td class="p-3">{{ c.commission_percentage }}%</td>
         <td class="p-3">{{ c.start_date }}</td>
         <td class="p-3">{{ c.end_date || '-' }}</td>
         <td class="p-3">
-          <span class="px-2 py-1 text-xs rounded border" [class.bg-green-50]="c.active">{{ c.active ? 'Activo' : 'Inactivo' }}</span>
+          <span class="px-2 py-1 text-xs rounded border" [class.bg-green-50]="c.active">
+            {{ c.active ? 'Activo' : 'Inactivo' }}
+          </span>
         </td>
         <td class="p-3 text-right space-x-2">
           <a class="text-indigo-600 hover:underline" [routerLink]="['/admin/contracts', c.contract_id]">Editar</a>

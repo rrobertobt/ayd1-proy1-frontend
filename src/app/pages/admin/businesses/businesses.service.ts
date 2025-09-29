@@ -6,8 +6,8 @@ import { Business, LoyaltyLevelRef } from './business.model';
 
 type BusinessListResponse =
   | Business[]
-  | { data: Business[]; total?: number }
-  | { content: Business[]; totalElements?: number };
+  | { data: Business[] }
+  | { content: Business[] };
 
 @Injectable({ providedIn: 'root' })
 export class BusinessesService {
@@ -27,48 +27,21 @@ export class BusinessesService {
     );
   }
 
-  get(id: number): Observable<Business> {
-    return this.api.get<Business>(`${this.base}/${id}`);
-  }
-
   listLevels(): Observable<LoyaltyLevelRef[]> {
     return this.api.get<LoyaltyLevelRef[]>(this.levelsBase);
   }
 
-  // POST /admin/businesses expects owner + commerce + initial_level_id
-  create(form: Business): Observable<Business> {
-    const body: any = {
-      email: form.email ?? '',
-      first_name: form.first_name ?? '',
-      last_name: form.last_name ?? '',
-      phone: form.phone ?? '',
-      address: form.address ?? '',
-      national_id: form.national_id ?? '',
-      tax_id: form.tax_id,
-      business_name: form.business_name,
-      legal_name: form.legal_name,
-      tax_address: form.tax_address,
-      business_phone: form.business_phone ?? '',
-      business_email: form.business_email ?? '',
-      support_contact: form.support_contact ?? '',
-      affiliation_date: form.affiliation_date ?? '',
-      initial_level_id: form.initial_level_id ?? null,
-    };
-    return this.api.post<Business>(this.base, body);
+  get(id: number): Observable<Business> {
+    return this.api.get<Business>(`${this.base}/${id}`);
   }
 
-  // PUT /admin/businesses/{businessId} accepts only commerce fields
-  update(form: Business): Observable<Business> {
-    if (!form.business_id) throw new Error('business_id is required for update');
-    const body: any = {
-      business_name: form.business_name,
-      legal_name: form.legal_name,
-      tax_address: form.tax_address,
-      business_phone: form.business_phone ?? '',
-      business_email: form.business_email ?? '',
-      support_contact: form.support_contact ?? '',
-    };
-    return this.api.put<Business>(`${this.base}/${form.business_id}`, body);
+  create(payload: Business): Observable<Business> {
+    return this.api.post<Business>(this.base, payload);
+  }
+
+  update(payload: Business): Observable<Business> {
+    if (!payload.business_id) throw new Error('business_id is required for update');
+    return this.api.put<Business>(`${this.base}/${payload.business_id}`, payload);
   }
 
   setStatus(id: number, active: boolean): Observable<void> {
