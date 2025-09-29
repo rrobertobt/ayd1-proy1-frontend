@@ -28,13 +28,13 @@ const passwordMatchValidator: ValidatorFn = (control: AbstractControl): Validati
 };
 
 @Component({
-  selector: 'app-ops-profile-page',
+  selector: 'app-admin-profile-page',
   imports: [ReactiveFormsModule, InputTextModule, IftaLabelModule, Toast, ButtonModule, NgIf],
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.css',
   providers: [MessageService],
 })
-export class OpsProfilePage implements OnInit {
+export class AdminProfilePage implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly submitting = signal(false);
   protected readonly enablingTwoFactor = signal(false);
