@@ -2,13 +2,14 @@
   <nav class="container mx-auto px-6 py-3 flex items-center justify-between">
     <div class="text-base font-black text-black flex items-center gap-2">SIE - Operaciones
     </div>
-    <ul class="flex items-center gap-4">
+    <ul class="flex items-center gap-2">
       @for (item of menuItems; track item.label) {
       <li>
         <a
           [routerLink]="item.routerLink"
-          class="flex items-center gap-2 hover:text-primary-emphasis transition px-3 py-1.5"
-          routerLinkActive="text-primary-emphasis font-semibold"
+          class="flex items-center gap-2 font-light hover:text-color text-muted-color transition hover:bg-primary/15 rounded px-3 py-1.5"
+          routerLinkActive="!font-extrabold text-color!"
+          [routerLinkActiveOptions]="{ exact: true }"
         >
           @if(item.icon){
           <ng-icon [name]="item.icon"></ng-icon>
@@ -24,7 +25,7 @@
 
       @if (authService.user()) {
       <div class="flex items-center gap-2 text-primary-emphasis">
-        <ng-icon name="heroUserCircle" />
+        <ng-icon name="heroUser" />
         <a class="font-semibold" [routerLink]="'/ops/profile'" pTooltip="Ver perfil" tooltipPosition="bottom">
           @if (!authService.user()?.first_name && !authService.user()?.last_name) {
           {{ authService.user()?.full_name }}
