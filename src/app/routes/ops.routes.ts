@@ -25,7 +25,19 @@ export const OPS_ROUTES: Routes = [
     path: 'create-assignment',
     loadComponent: () =>
       import('../pages/ops/create-assignment-page/create-assignment-page').then(
-        (m) => m.CreateAssignmentPage,
+        (m) => m.CreateAssignmentPage
       ),
-  }
+  },
+  {
+    path: 'incidents',
+    loadComponent: () =>
+      import('../pages/ops/incidents-page/incidents-page').then((m) => m.IncidentsPage),
+  },
+  {
+    path: 'create-incident',
+    loadComponent: () =>
+      import('../pages/ops/create-incident-page/create-incident-page').then(
+        (m) => m.CreateIncidentPage
+      ),
+  },
 ];
