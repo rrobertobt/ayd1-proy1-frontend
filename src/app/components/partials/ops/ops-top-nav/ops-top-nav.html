@@ -25,7 +25,7 @@
       @if (authService.user()) {
       <div class="flex items-center gap-2 text-primary-emphasis">
         <ng-icon name="heroUserCircle" />
-        <a class="font-semibold hover:text-primary-emphasis" [routerLink]="'/ops/profile'">
+        <a class="font-semibold" [routerLink]="'/ops/profile'" pTooltip="Ver perfil" tooltipPosition="bottom">
           @if (!authService.user()?.first_name && !authService.user()?.last_name) {
           {{ authService.user()?.full_name }}
           } @else {
@@ -38,7 +38,7 @@
           size="small"
           variant="text"
           pTooltip="Cerrar sesión"
-          tooltipPosition="top"
+          tooltipPosition="bottom"
         />
       </div>
       }
