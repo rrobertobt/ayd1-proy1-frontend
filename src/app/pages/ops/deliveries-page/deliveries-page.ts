@@ -11,12 +11,17 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  tablerClock,
-  tablerHistory,
-  tablerList
-} from '@ng-icons/tabler-icons';
+import { tablerClock, tablerHistory, tablerList } from '@ng-icons/tabler-icons';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TextareaModule } from 'primeng/textarea';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../../core/http/api.service';
 
 type DeliveryTab = 'all' | 'pending' | 'history';
@@ -60,17 +65,39 @@ interface DeliveryResponse {
   empty: boolean;
 }
 
+interface CancellationType {
+  cancellation_type_id: number;
+  cancellation_type_name: string;
+  apply_penalty_default?: boolean;
+}
+
 @Component({
   selector: 'app-deliveries-page',
-  imports: [CommonModule, ButtonModule, NgIcon, RouterLink],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    DialogModule,
+    AutoCompleteModule,
+    InputTextModule,
+    TextareaModule,
+    ToggleSwitchModule,
+    ToastModule,
+    SelectModule,
+    NgIcon,
+    RouterLink,
+    ReactiveFormsModule,
+  ],
   templateUrl: './deliveries-page.html',
   viewProviders: [provideIcons({ tablerList, tablerClock, tablerHistory })],
   styleUrl: './deliveries-page.css',
+  providers: [MessageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeliveriesPage implements OnInit {
   private readonly api = inject(ApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
 
   protected readonly tabOptions: {
     key: DeliveryTab;
@@ -110,6 +137,21 @@ export class DeliveriesPage implements OnInit {
   protected readonly isLastPage = signal(true);
   protected readonly numberOfElements = signal(0);
   protected readonly pageSizeOptions = [10, 20, 50];
+  protected readonly cancellationDialogVisible = signal(false);
+  protected readonly submittingCancellation = signal(false);
+  protected readonly cancellationTypes = signal<CancellationType[]>([]);
+  protected readonly cancellationError = signal('');
+  protected readonly cancellationGuide = signal<DeliveryGuide | null>(null);
+  protected readonly cancellationForm = this.fb.nonNullable.group({
+    guide_id: [null as number | null, Validators.required],
+    cancellation_type_id: [null as number | null, Validators.required],
+    reason: ['', [Validators.required, Validators.minLength(10)]],
+    apply_penalty: [false],
+    notify_courier: [true],
+    notify_customer: [true],
+    notify_business: [true],
+    notes: [''],
+  });
 
   protected readonly pageRangeLabel = computed(() => {
     const total = this.totalElements();
@@ -137,6 +179,22 @@ export class DeliveriesPage implements OnInit {
 
   ngOnInit(): void {
     this.loadDeliveries('all', 0, this.pageSize());
+    this.loadCancellationTypes();
+
+    this.cancellationForm.controls.cancellation_type_id.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((typeId) => {
+        if (typeId == null) return;
+        const current = this.cancellationTypes().find(
+          (type) => type.cancellation_type_id === typeId
+        );
+        if (current) {
+          this.cancellationForm.controls.apply_penalty.setValue(
+            current.apply_penalty_default ?? false,
+            { emitEvent: false }
+          );
+        }
+      });
   }
 
   protected selectTab(tab: DeliveryTab): void {
@@ -204,6 +262,89 @@ export class DeliveriesPage implements OnInit {
           this.numberOfElements.set(0);
           this.isFirstPage.set(true);
           this.isLastPage.set(true);
+        },
+      });
+  }
+
+  protected openCancellationDialog(delivery: DeliveryGuide): void {
+    this.cancellationGuide.set(delivery);
+    this.cancellationError.set('');
+    this.cancellationForm.reset({
+      guide_id: delivery.guide_id,
+      cancellation_type_id: null,
+      reason: '',
+      apply_penalty: false,
+      notify_courier: true,
+      notify_customer: true,
+      notify_business: true,
+      notes: '',
+    });
+    this.cancellationDialogVisible.set(true);
+  }
+
+  protected closeCancellationDialog(): void {
+    this.cancellationDialogVisible.set(false);
+    this.cancellationGuide.set(null);
+    this.cancellationError.set('');
+  }
+
+  protected submitCancellation(): void {
+    if (this.cancellationForm.invalid) {
+      this.cancellationForm.markAllAsTouched();
+      return;
+    }
+
+    const payload = this.cancellationForm.getRawValue();
+    if (payload.guide_id == null || payload.cancellation_type_id == null) {
+      this.cancellationError.set('Selecciona la guía y el tipo de cancelación.');
+      return;
+    }
+
+    this.submittingCancellation.set(true);
+    this.cancellationError.set('');
+
+    this.api
+      .post('/coordinator/cancellations', payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.submittingCancellation.set(false);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cancelación registrada',
+            detail: 'La guía fue cancelada correctamente.',
+          });
+          this.closeCancellationDialog();
+          this.refreshCurrent();
+        },
+        error: (error) => {
+          this.submittingCancellation.set(false);
+          const message =
+            error?.message ?? 'No se pudo registrar la cancelación. Inténtalo nuevamente.';
+          this.cancellationError.set(message);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+        },
+      });
+  }
+
+  protected hasCancellationError(
+    controlName: keyof typeof this.cancellationForm.controls,
+    errorCode: string
+  ): boolean {
+    const control = this.cancellationForm.get(controlName);
+    return !!control && control.hasError(errorCode) && (control.dirty || control.touched);
+  }
+
+  private loadCancellationTypes(): void {
+    this.api
+      .get<CancellationType[]>('/coordinator/cancellation-types')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (types) => {
+          this.cancellationTypes.set(types ?? []);
+        },
+        error: () => {
+          this.cancellationTypes.set([]);
         },
       });
   }
