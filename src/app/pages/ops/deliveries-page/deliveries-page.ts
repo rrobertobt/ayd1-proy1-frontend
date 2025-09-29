@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,17 +7,16 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ApiService } from '../../../core/http/api.service';
+import { RouterLink } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   tablerClock,
   tablerHistory,
-  tablerList,
-  tablerTruckDelivery,
+  tablerList
 } from '@ng-icons/tabler-icons';
-import { provideIcons, NgIcon } from '@ng-icons/core';
+import { ButtonModule } from 'primeng/button';
+import { ApiService } from '../../../core/http/api.service';
 
 type DeliveryTab = 'all' | 'pending' | 'history';
 
@@ -47,7 +47,7 @@ interface DeliveryResponse {
 
 @Component({
   selector: 'app-deliveries-page',
-  imports: [CommonModule, ButtonModule, NgIcon],
+  imports: [CommonModule, ButtonModule, NgIcon, RouterLink],
   templateUrl: './deliveries-page.html',
   viewProviders: [provideIcons({ tablerList, tablerClock, tablerHistory })],
   styleUrl: './deliveries-page.css',
