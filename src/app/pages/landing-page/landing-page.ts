@@ -1,13 +1,18 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroArrowRight } from '@ng-icons/heroicons/outline';
 import { ButtonModule } from 'primeng/button';
-import { DefaultTopNav } from '../../partials/landing/default-top-nav/default-top-nav';
 
 @Component({
   selector: 'app-landing-page',
-  imports: [ButtonModule],
+  imports: [ButtonModule, NgIcon, RouterLink],
   templateUrl: './landing-page.html',
-  styleUrl: './landing-page.css'
+  viewProviders: [
+    provideIcons({
+      heroArrowRight,
+    }),
+  ],
+  styleUrl: './landing-page.css',
 })
-export class LandingPage {
-
-}
+export class LandingPage {}
